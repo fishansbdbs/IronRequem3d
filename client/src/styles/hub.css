@@ -1,0 +1,13 @@
+.modal-body ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.modal-body li {
+  margin: 6px 0;
+}
+
+.modal-body strong {
+  color: var(--text);
+}
