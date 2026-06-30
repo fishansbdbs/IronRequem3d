@@ -4,9 +4,10 @@ import { createHubInteractables } from './HubNPCs.js';
 import { InteractionSystem } from './InteractionSystem.js';
 
 export class Arc12Hub {
-  constructor({ scene, cameraController, onInteract }) {
+  constructor({ scene, cameraController, state, onInteract }) {
     this.scene = scene;
     this.cameraController = cameraController;
+    this.hubState = state;
     this.onInteract = onInteract;
     this.root = new THREE.Group();
     this.interaction = new InteractionSystem();
@@ -81,6 +82,26 @@ export class Arc12Hub {
       this.root.add(group);
       this.interactables.push({ ...item, group });
     });
+
+    if (this.hubState.currentChapter === 'chapter-2-hollow-signal') {
+      const repairRig = new THREE.Mesh(
+        new THREE.BoxGeometry(3.5, 0.18, 1.4),
+        new THREE.MeshStandardMaterial({ color: 0x3a4652, roughness: 0.55, metalness: 0.75 })
+      );
+      repairRig.position.set(0, 0.25, 8.2);
+      this.root.add(repairRig);
+    }
+
+    if (this.hubState.currentChapter === 'chapter-3-redline-descent') {
+      const staticVeil = new THREE.Mesh(
+        new THREE.TorusGeometry(1.4, 0.035, 8, 48),
+        ModelFactory.material('red')
+      );
+      staticVeil.position.set(5.5, 2.5, -4.8);
+      staticVeil.rotation.x = Math.PI / 2;
+      this.root.add(staticVeil);
+      this.redlineStatic = staticVeil;
+    }
   }
 
   setEmergency(active) {
@@ -110,10 +131,16 @@ export class Arc12Hub {
     });
 
     this.alertLights.forEach((light, index) => {
+      const chapterBoost = state.currentChapter === 'chapter-3-redline-descent' ? 0.55 : 0;
       light.intensity = state.storyFlags.emergencyStarted
-        ? 1.4 + Math.sin(this.clock * 8 + index) * 0.8
-        : 0.45;
+        ? 1.4 + chapterBoost + Math.sin(this.clock * 8 + index) * 0.8
+        : 0.45 + chapterBoost;
     });
+
+    if (this.redlineStatic) {
+      this.redlineStatic.rotation.z += dt * 0.8;
+      this.redlineStatic.scale.setScalar(1 + Math.sin(this.clock * 5) * 0.05);
+    }
 
     const current = this.interaction.update(this.player, this.interactables);
     if (current && input.consumePressed('KeyE')) {

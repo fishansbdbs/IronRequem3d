@@ -18,13 +18,14 @@ export class BattleUI {
   }
 
   update({ mecha, boss, objective }) {
+    this.el.classList.toggle('distorted', Boolean(this.distorted));
     const hull = Math.max(0, (mecha.stats.hull / mecha.stats.maxHull) * 100);
     const energy = Math.max(0, (mecha.stats.energy / mecha.stats.maxEnergy) * 100);
     const sync = Math.max(0, (mecha.stats.sync / mecha.stats.maxSync) * 100);
     const bossHp = Math.max(0, (boss.hp / boss.maxHp) * 100);
     this.el.innerHTML = `
       <div class="battle-top">
-        <div class="boss-bar"><span>Fracture Worm</span><i style="width:${bossHp}%"></i></div>
+        <div class="boss-bar"><span>${boss.name}</span><i style="width:${bossHp}%"></i></div>
       </div>
       <div class="battle-bottom">
         ${this.meter('Hull', hull)}
@@ -37,6 +38,12 @@ export class BattleUI {
         </div>
       </div>
       <div class="battle-objective">${objective}</div>
+      ${this.currentCallout ? `
+        <div class="battle-callout">
+          <span>${this.currentCallout.speaker}</span>
+          <strong>${this.currentCallout.text}</strong>
+        </div>
+      ` : ''}
     `;
   }
 
@@ -52,5 +59,17 @@ export class BattleUI {
     floater.style.top = `${35 + Math.random() * 20}%`;
     this.floaters.appendChild(floater);
     setTimeout(() => floater.remove(), 850);
+  }
+
+  callout(callout) {
+    this.currentCallout = callout;
+    clearTimeout(this.calloutTimer);
+    this.calloutTimer = setTimeout(() => {
+      this.currentCallout = null;
+    }, 4300);
+  }
+
+  setDistortion(active) {
+    this.distorted = active;
   }
 }

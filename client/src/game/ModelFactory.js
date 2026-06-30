@@ -7,6 +7,8 @@ const mats = {
   blue: new THREE.MeshStandardMaterial({ color: 0x59d8ff, emissive: 0x1aa8d8, emissiveIntensity: 1.6 }),
   red: new THREE.MeshStandardMaterial({ color: 0xff3b3b, emissive: 0x9b1010, emissiveIntensity: 1.5 }),
   amber: new THREE.MeshStandardMaterial({ color: 0xffb457, emissive: 0x7a3500, emissiveIntensity: 0.7 }),
+  violet: new THREE.MeshStandardMaterial({ color: 0x8b5dff, emissive: 0x2d1888, emissiveIntensity: 1.1 }),
+  rail: new THREE.MeshStandardMaterial({ color: 0x383f49, roughness: 0.42, metalness: 0.85 }),
   glass: new THREE.MeshStandardMaterial({
     color: 0x79dbff,
     transparent: true,
@@ -114,6 +116,74 @@ export class ModelFactory {
     mandibleB.position.z = -0.48;
     mandibleB.rotation.x = -0.7;
     group.add(mandibleA, mandibleB);
+    return group;
+  }
+
+  static createEchoStalker() {
+    const group = new THREE.Group();
+    group.name = 'Echo Stalker';
+    group.add(box('stalker-body', new THREE.Vector3(2.1, 0.9, 1.25), new THREE.Vector3(0, 1.7, 0), mats.dark));
+    group.add(box('signal-core', new THREE.Vector3(0.72, 0.72, 0.86), new THREE.Vector3(0, 1.75, -0.1), mats.red));
+    group.add(box('stalker-head', new THREE.Vector3(0.85, 0.55, 0.72), new THREE.Vector3(-1.25, 2.15, 0), mats.armor));
+    for (let i = 0; i < 2; i += 1) {
+      const horn = cylinder(`antenna-${i}`, 0.04, 0.09, 1.8, mats.red, 8);
+      horn.position.set(-1.45, 3.0, i ? 0.34 : -0.34);
+      horn.rotation.z = i ? -0.42 : 0.42;
+      group.add(horn);
+    }
+    for (let i = 0; i < 4; i += 1) {
+      const side = i < 2 ? -1 : 1;
+      const z = i % 2 ? -0.62 : 0.62;
+      const upper = box(`front-limb-${i}`, new THREE.Vector3(0.22, 1.9, 0.22), new THREE.Vector3(side * 0.92, 0.95, z), mats.armor);
+      upper.rotation.z = side * 0.62;
+      upper.rotation.x = z * 0.25;
+      const claw = box(`signal-claw-${i}`, new THREE.Vector3(0.22, 0.9, 0.18), new THREE.Vector3(side * 1.62, 0.2, z * 1.28), mats.red);
+      claw.rotation.z = side * 0.3;
+      group.add(upper, claw);
+    }
+    const aura = new THREE.Mesh(new THREE.TorusGeometry(1.65, 0.035, 8, 64), mats.violet);
+    aura.name = 'static-aura';
+    aura.rotation.x = Math.PI / 2;
+    aura.position.set(0, 1.75, 0);
+    group.add(aura);
+    return group;
+  }
+
+  static createVeilCrawler() {
+    const group = new THREE.Group();
+    group.name = 'Veil Crawler';
+    group.add(box('crawler-body', new THREE.Vector3(1.1, 0.45, 0.7), new THREE.Vector3(0, 0.55, 0), mats.dark));
+    group.add(box('crawler-mouth-core', new THREE.Vector3(0.42, 0.34, 0.5), new THREE.Vector3(-0.62, 0.58, 0), mats.red));
+    for (let i = 0; i < 6; i += 1) {
+      const leg = box(`crawler-leg-${i}`, new THREE.Vector3(0.12, 0.5, 0.12), new THREE.Vector3(-0.3 + i * 0.12, 0.28, i % 2 ? -0.55 : 0.55), mats.armor);
+      leg.rotation.x = i % 2 ? 0.75 : -0.75;
+      group.add(leg);
+    }
+    return group;
+  }
+
+  static createRedlineColossus() {
+    const group = new THREE.Group();
+    group.name = 'Redline Colossus';
+    group.add(box('colossus-pelvis', new THREE.Vector3(1.8, 0.8, 1), new THREE.Vector3(0, 2.0, 0), mats.rail));
+    group.add(box('colossus-torso', new THREE.Vector3(2.6, 2.2, 1.15), new THREE.Vector3(0, 3.4, 0), mats.dark));
+    group.add(box('redline-core', new THREE.Vector3(0.95, 0.95, 1.24), new THREE.Vector3(0, 3.45, -0.05), mats.red));
+    group.add(box('train-plate-left', new THREE.Vector3(1.1, 1.7, 0.22), new THREE.Vector3(-0.95, 3.5, -0.64), mats.rail));
+    group.add(box('train-plate-right', new THREE.Vector3(1.1, 1.7, 0.22), new THREE.Vector3(0.95, 3.5, -0.64), mats.rail));
+    group.add(box('colossus-head', new THREE.Vector3(1.1, 0.7, 0.85), new THREE.Vector3(0, 4.95, 0), mats.armor));
+    for (let i = 0; i < 6; i += 1) {
+      const spike = cylinder(`rail-spike-${i}`, 0.04, 0.16, 1.2, mats.red, 6);
+      spike.position.set(-1.2 + i * 0.48, 5.7, 0);
+      spike.rotation.z = -0.7 + i * 0.28;
+      group.add(spike);
+    }
+    ['left', 'right'].forEach((sideName, index) => {
+      const side = index ? 1 : -1;
+      group.add(box(`${sideName}-heavy-arm`, new THREE.Vector3(0.7, 2.1, 0.7), new THREE.Vector3(side * 1.95, 3.0, 0), mats.rail));
+      group.add(box(`${sideName}-rail-fist`, new THREE.Vector3(0.95, 0.7, 0.95), new THREE.Vector3(side * 2.05, 1.65, -0.05), mats.dark));
+      group.add(box(`${sideName}-leg`, new THREE.Vector3(0.72, 2.0, 0.72), new THREE.Vector3(side * 0.65, 0.95, 0), mats.rail));
+      group.add(box(`${sideName}-foot`, new THREE.Vector3(1.2, 0.32, 1.45), new THREE.Vector3(side * 0.65, 0.16, -0.2), mats.dark));
+    });
     return group;
   }
 

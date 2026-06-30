@@ -242,6 +242,19 @@
   gap: 8px;
 }
 
+.dialogue-actions .ui-button {
+  display: inline-grid;
+  gap: 2px;
+  min-height: 48px;
+  text-align: left;
+}
+
+.dialogue-actions small {
+  color: var(--amber);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
 .briefing-grid {
   display: grid;
   grid-template-columns: minmax(220px, 300px) 1fr;
@@ -256,6 +269,18 @@
   display: grid;
   place-items: center;
   background: repeating-linear-gradient(0deg, rgba(98, 220, 255, 0.07), rgba(98, 220, 255, 0.07) 1px, transparent 1px, transparent 18px);
+}
+
+.holo-map.broadcast {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 76, 76, 0.08), rgba(255, 76, 76, 0.08) 1px, transparent 1px, transparent 16px),
+    repeating-linear-gradient(0deg, rgba(98, 220, 255, 0.06), rgba(98, 220, 255, 0.06) 1px, transparent 1px, transparent 20px);
+}
+
+.holo-map.redline {
+  background:
+    linear-gradient(90deg, transparent 44%, rgba(255, 76, 76, 0.28) 45%, transparent 46%, transparent 54%, rgba(255, 76, 76, 0.28) 55%, transparent 56%),
+    repeating-linear-gradient(0deg, rgba(255, 189, 100, 0.08), rgba(255, 189, 100, 0.08) 2px, transparent 2px, transparent 28px);
 }
 
 .rift-pulse {
@@ -345,6 +370,15 @@
   color: var(--text);
   background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
+}
+
+.smoke-debug {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 @media (max-width: 760px) {

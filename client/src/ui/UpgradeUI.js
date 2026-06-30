@@ -15,10 +15,13 @@ export class UpgradeUI {
             <div>
               <h3>${upgrade.name}</h3>
               <p>${upgrade.description}</p>
-              <span>Level ${upgrade.currentLevel} / Current ${upgrade.currentValue}</span>
+              <span>
+                Level ${upgrade.currentLevel} / Current ${upgrade.currentValue}
+                ${upgrade.unlocked ? '' : ` / ${upgrade.requirement || 'Locked'}`}
+              </span>
             </div>
             <button class="ui-button ${upgrade.affordable ? 'primary' : 'disabled'}" data-upgrade="${upgrade.id}" ${upgrade.affordable ? '' : 'disabled'}>
-              ${upgrade.cost} Salvage
+              ${upgrade.unlocked ? `${upgrade.cost} Salvage` : 'Locked'}
             </button>
           </article>
         `).join('')}

@@ -105,6 +105,39 @@
   color: var(--blue);
 }
 
+.battle-callout {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: min(420px, calc(100vw - 36px));
+  border: 1px solid rgba(255, 189, 100, 0.42);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: rgba(12, 14, 20, 0.86);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.battle-callout span {
+  display: block;
+  color: var(--amber);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.battle-callout strong {
+  display: block;
+  margin-top: 4px;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.battle-ui.distorted .battle-bottom,
+.battle-ui.distorted .battle-objective,
+.battle-ui.distorted .boss-bar {
+  animation: signalFlicker 160ms steps(2) 1;
+}
+
 .floaters {
   position: absolute;
   inset: 0;
@@ -127,6 +160,21 @@
   to {
     opacity: 0;
     transform: translateY(-44px) scale(1.2);
+  }
+}
+
+@keyframes signalFlicker {
+  from {
+    filter: hue-rotate(0deg);
+    transform: translateX(0);
+  }
+  45% {
+    filter: hue-rotate(90deg);
+    transform: translateX(2px);
+  }
+  to {
+    filter: hue-rotate(0deg);
+    transform: translateX(0);
   }
 }
 

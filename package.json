@@ -1,8 +1,8 @@
 {
   "name": "iron-requiem-3d-remaster",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "IRON REQUIEM 3D REMASTER - Arc-12 Launch Prototype",
+  "description": "IRON REQUIEM 3D REMASTER - Echoes Beyond Arc-12",
   "type": "module",
   "scripts": {
     "install:all": "node scripts/install-all.js",

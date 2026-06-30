@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { GAME_TITLE, PHASES } from '../../../shared/constants.js';
-import { MISSION_REWARD } from '../../../shared/balance.js';
 import {
   createInitialState,
   completeMission,
   markBriefingComplete,
   markLaunchWatched,
+  recordDialogueChoice,
   returnToArc12,
   setPhase,
   startEmergency
@@ -25,8 +25,9 @@ import { LaunchSequence } from '../launch/LaunchSequence.js';
 import { BattleScene } from '../battle/BattleScene.js';
 import { DialogueSystem } from '../story/DialogueSystem.js';
 import { ChapterManager } from '../story/ChapterManager.js';
-import { DIALOGUES, INTRO_LINES } from '../story/storyData.js';
-import { getDefaultChoices } from '../story/ChoiceSystem.js';
+import { DIALOGUES, INTRO_LINES, getAftermathDialogue, getCrewDialogue } from '../story/storyData.js';
+import { getDialogueChoices } from '../story/ChoiceSystem.js';
+import { getMissionByChapter, getMissionById } from '../data/missions.js';
 import { Modal } from '../ui/Modal.js';
 import { MainMenu } from '../ui/MainMenu.js';
 import { HUD } from '../ui/HUD.js';
@@ -94,6 +95,18 @@ export class Game {
     this.menu.show();
     this.fetchServerStatus();
     this.animate();
+  }
+
+  getActiveMission() {
+    const chapterMission = getMissionByChapter(this.state.currentChapter);
+    const activeMission = getMissionById(this.state.activeMissionId);
+    return activeMission?.chapterId === this.state.currentChapter ? activeMission : chapterMission;
+  }
+
+  setActiveMissionForChapter(chapterId = this.state.currentChapter) {
+    const mission = getMissionByChapter(chapterId);
+    this.state.activeMissionId = mission.id;
+    return mission;
   }
 
   setupLights() {
@@ -205,6 +218,7 @@ export class Game {
     this.currentScene = new Arc12Hub({
       scene: this.scene,
       cameraController: this.cameraController,
+      state: this.state,
       onInteract: (item) => this.handleHubInteract(item)
     });
     this.currentScene.setEmergency(this.state.storyFlags.emergencyStarted);
@@ -245,51 +259,45 @@ export class Game {
     const before = this.state;
     this.state = spendForCrew(this.state, crewId);
     saveGame(this.state);
-    const choices = crewId === 'sera' ? getDefaultChoices() : [];
-    this.dialogues.play(DIALOGUES[crewId], {
+    const lines = getCrewDialogue(crewId, this.state);
+    const choices = getDialogueChoices(crewId, this.state);
+    let selectedChoice = null;
+    this.dialogues.play(lines, {
       choices,
       onChoice: (choice) => {
-        if (choice?.bond && this.state.bonds[choice.bond] !== undefined) {
-          this.state.bonds[choice.bond] += 1;
+        if (choice) {
+          selectedChoice = choice;
+          this.state = recordDialogueChoice(this.state, choice);
           saveGame(this.state);
         }
       },
       onComplete: () => {
-        if (before.ap.current === this.state.ap.current && this.state.ap.current <= 0) {
-          this.hud.update(this.state, { prompt: 'End Day available', chapter: this.chapterManager.getChapterLabel(this.state) });
+        const finish = () => {
+          if (before.ap.current === this.state.ap.current && this.state.ap.current <= 0) {
+            this.hud.update(this.state, { prompt: 'End Day available', chapter: this.chapterManager.getChapterLabel(this.state) });
+          }
+          afterComplete?.();
+        };
+
+        if (selectedChoice?.response) {
+          const delta = selectedChoice.bondDelta ? ` Bond ${selectedChoice.bondDelta > 0 ? '+' : ''}${selectedChoice.bondDelta}.` : '';
+          this.dialogues.play([{ speaker: 'Arc-12', text: `${selectedChoice.response}${delta}` }], {
+            onComplete: finish
+          });
+        } else {
+          finish();
         }
-        afterComplete?.();
       }
     });
   }
 
-  endDay() {
-    this.audio.alarm();
-    this.state = startEmergency(this.state);
-    saveGame(this.state);
-    this.currentScene?.setEmergency(true);
-    this.dialogues.play(DIALOGUES.emergency, {
-      onComplete: () => this.hud.update(this.state, { chapter: this.chapterManager.getChapterLabel(this.state) })
-    });
-  }
-
-  openUpgradeBay() {
-    this.upgradeUI.open(this.state);
-  }
-
-  purchaseUpgrade(upgradeId) {
-    const before = this.state.salvage;
-    this.state = this.upgradeBay.purchase(this.state, upgradeId);
-    saveGame(this.state);
-    if (this.state.salvage !== before) this.audio.ui();
-    this.upgradeUI.open(this.state);
-  }
-
   openBriefing() {
+    const mission = this.setActiveMissionForChapter();
     this.state = setPhase(this.state, PHASES.BRIEFING);
     saveGame(this.state);
     const briefing = new BriefingScene({
       modal: this.modal,
+      mission,
       onLaunch: () => {
         this.modal.close();
         this.enterHangar();
@@ -299,27 +307,29 @@ export class Game {
   }
 
   enterHangar() {
+    const mission = this.getActiveMission();
     this.clearScene();
     this.state = markBriefingComplete(this.state);
     this.state = setPhase(this.state, PHASES.HANGAR);
     saveGame(this.state);
     this.hud.show();
     this.cameraController.setMode('menu');
-    this.currentScene = new HangarScene({ scene: this.scene });
+    this.currentScene = new HangarScene({ scene: this.scene, mission });
     this.camera.position.set(6, 5, 13);
     this.camera.lookAt(0, 2.8, 1);
     this.modal.open({
       title: 'AEGIS-7 Launch Bay',
-      subtitle: 'Catapult rail armed. Hangar doors sealed.',
-      body: '<p>AEGIS-7 stands in the launch cradle, core cycling from blue to white as Vael completes neural sync.</p>',
+      subtitle: mission.launchSubtitle,
+      body: `<p>${mission.launchBody}</p>`,
       actions: [
-        { label: 'Launch AEGIS-7', kind: 'primary', onClick: () => this.startLaunch() },
+        { label: `Launch ${mission.name}`, kind: 'primary', onClick: () => this.startLaunch() },
         { label: 'Crew Bonds', kind: 'secondary', onClick: () => this.crewBonds.open(this.state) }
       ]
     });
   }
 
   startLaunch() {
+    const mission = this.getActiveMission();
     this.modal.close();
     this.clearScene();
     this.hud.show();
@@ -331,11 +341,13 @@ export class Game {
       camera: this.camera,
       overlay: this.hud,
       audio: this.audio,
+      mission,
       onComplete: () => this.enterBattle()
     });
   }
 
   enterBattle() {
+    const mission = this.getActiveMission();
     this.clearScene();
     this.hud.hide();
     this.battleUI.show();
@@ -348,23 +360,41 @@ export class Game {
       state: this.state,
       audio: this.audio,
       battleUI: this.battleUI,
+      mission,
       onVictory: (results) => this.finishBattle(results)
     });
   }
 
   finishBattle(results) {
+    const mission = getMissionById(results.missionId) || this.getActiveMission();
+    const reward = mission.reward;
+    const unlockLabels = {
+      'operation-iron-wake': 'Chapter 2 - Hollow Signal',
+      'operation-hollow-signal': 'Chapter 3 - Redline Descent',
+      'operation-redline-descent': 'Chapter 4 will continue the war beyond Arc-12'
+    };
+    const enrichedResults = {
+      ...results,
+      missionId: mission.id,
+      missionName: mission.name,
+      bossDefeated: mission.enemy,
+      salvage: reward.salvage,
+      sync: reward.sync,
+      chapterUnlocked: unlockLabels[mission.id]
+    };
     this.currentScene?.dispose?.();
     this.currentScene = null;
     this.battleUI.hide();
     this.state = completeMission(this.state, {
-      missionId: 'operation-iron-wake',
-      salvage: MISSION_REWARD.salvage,
-      sync: MISSION_REWARD.sync
+      missionId: mission.id,
+      salvage: reward.salvage,
+      sync: reward.sync,
+      result: enrichedResults
     });
     this.state = setPhase(this.state, PHASES.RESULTS);
     saveGame(this.state);
-    this.dialogues.play(DIALOGUES.aftermath, {
-      onComplete: () => this.resultsUI.open(results, () => {
+    this.dialogues.play(getAftermathDialogue(mission.id), {
+      onComplete: () => this.resultsUI.open(enrichedResults, () => {
         this.modal.close();
         this.state = returnToArc12(this.state);
         saveGame(this.state);
@@ -397,13 +427,74 @@ export class Game {
     });
   }
 
+  closeSmokeOverlays() {
+    this.modal.close();
+    this.dialogueUI.el.classList.add('hidden');
+    this.menu.hide();
+  }
+
+  prepareSmokeChapter(chapterId) {
+    let state = createInitialState();
+    state.storyFlags.introSeen = true;
+    state.storyFlags.emergencyStarted = true;
+
+    if (chapterId === 'chapter-2-hollow-signal' || chapterId === 'chapter-3-redline-descent') {
+      state = completeMission(state, {
+        missionId: 'operation-iron-wake',
+        salvage: 100,
+        sync: 15
+      });
+      state = returnToArc12(state);
+      state.storyFlags.emergencyStarted = true;
+    }
+
+    if (chapterId === 'chapter-3-redline-descent') {
+      state = completeMission(state, {
+        missionId: 'operation-hollow-signal',
+        salvage: 150,
+        sync: 20,
+        result: { missionName: 'Operation Hollow Signal', enemiesDefeated: 3, bossDefeated: 'Echo Stalker' }
+      });
+      state = returnToArc12(state);
+      state.storyFlags.emergencyStarted = true;
+    }
+
+    state.currentChapter = chapterId;
+    state.activeMissionId = getMissionByChapter(chapterId).id;
+    state.currentPhase = PHASES.HUB;
+    this.state = state;
+    saveGame(this.state);
+  }
+
   installSmokeHooks() {
     const host = window.location.hostname;
     if (!['localhost', '127.0.0.1', ''].includes(host)) return;
+    const chapterIds = {
+      ch1: 'chapter-1-iron-wake',
+      ch2: 'chapter-2-hollow-signal',
+      ch3: 'chapter-3-redline-descent'
+    };
+    const jumpToChapter = (chapterId) => {
+      this.closeSmokeOverlays();
+      this.prepareSmokeChapter(chapterId);
+      this.enterHub();
+      return this.state;
+    };
+    const startChapterBattle = (chapterId) => {
+      jumpToChapter(chapterId);
+      this.state.storyFlags.briefingComplete = true;
+      this.state.activeMissionId = getMissionByChapter(chapterId).id;
+      saveGame(this.state);
+      this.enterBattle();
+      return this.currentScene;
+    };
     const smoke = {
       state: () => structuredClone(this.state),
       phase: () => this.state.currentPhase,
       crew: (crewId) => this.playCrewDialogue(crewId),
+      chapter1: () => jumpToChapter(chapterIds.ch1),
+      chapter2: () => jumpToChapter(chapterIds.ch2),
+      chapter3: () => jumpToChapter(chapterIds.ch3),
       endDay: () => this.endDay(),
       briefing: () => {
         if (!this.state.storyFlags.emergencyStarted) {
@@ -414,9 +505,23 @@ export class Game {
       hangar: () => this.enterHangar(),
       launch: () => this.startLaunch(),
       battle: () => this.enterBattle(),
+      battleChapter1: () => startChapterBattle(chapterIds.ch1),
+      battleChapter2: () => startChapterBattle(chapterIds.ch2),
+      battleChapter3: () => startChapterBattle(chapterIds.ch3),
+      battleDebug: () => this.currentScene instanceof BattleScene ? ({
+        missionId: this.currentScene.mission.id,
+        boss: this.currentScene.boss.name,
+        bossHp: this.currentScene.boss.hp,
+        bossPhase: this.currentScene.boss.phase,
+        telegraphs: this.currentScene.telegraphs.telegraphs.length,
+        adds: this.currentScene.boss.adds.length,
+        attackIndex: this.currentScene.boss.attackIndex,
+        mechaAnimations: { ...this.currentScene.mecha.animations },
+        resultReady: this.currentScene.victoryTimer !== null
+      }) : null,
       defeatBoss: () => {
         if (this.currentScene instanceof BattleScene) {
-          this.currentScene.boss.damage(999);
+          this.currentScene.boss.damage(9999);
         }
       },
       reset: () => this.resetSave()
@@ -426,7 +531,12 @@ export class Game {
 
     const panel = document.createElement('div');
     panel.className = 'smoke-panel';
+    this.smokeDebugEl = document.createElement('pre');
+    this.smokeDebugEl.className = 'smoke-debug';
     const actions = [
+      ['Ch1 Hub', smoke.chapter1],
+      ['Ch2 Hub', smoke.chapter2],
+      ['Ch3 Hub', smoke.chapter3],
       ['Nira', () => smoke.crew('nira')],
       ['Vael', () => smoke.crew('vael')],
       ['Rook', () => smoke.crew('rook')],
@@ -435,7 +545,9 @@ export class Game {
       ['Briefing', smoke.briefing],
       ['Hangar', smoke.hangar],
       ['Launch', smoke.launch],
-      ['Battle', smoke.battle],
+      ['Ch1 Battle', smoke.battleChapter1],
+      ['Ch2 Battle', smoke.battleChapter2],
+      ['Ch3 Battle', smoke.battleChapter3],
       ['Defeat Boss', smoke.defeatBoss]
     ];
 
@@ -447,7 +559,33 @@ export class Game {
       button.addEventListener('click', () => action());
       panel.appendChild(button);
     });
+    panel.appendChild(this.smokeDebugEl);
     this.uiHost.appendChild(panel);
+  }
+
+  updateSmokeDebug() {
+    if (!this.smokeDebugEl) return;
+    const battle = this.currentScene instanceof BattleScene ? {
+      missionId: this.currentScene.mission.id,
+      boss: this.currentScene.boss.name,
+      bossHp: this.currentScene.boss.hp,
+      bossPhase: this.currentScene.boss.phase,
+      telegraphs: this.currentScene.telegraphs.telegraphs.length,
+      adds: this.currentScene.boss.adds.length,
+      attackIndex: this.currentScene.boss.attackIndex,
+      mechaAnimations: { ...this.currentScene.mecha.animations },
+      resultReady: this.currentScene.victoryTimer !== null
+    } : null;
+    this.smokeDebugEl.textContent = JSON.stringify({
+      phase: this.state.currentPhase,
+      chapter: this.state.currentChapter,
+      activeMissionId: this.state.activeMissionId,
+      objective: this.state.objective,
+      prototypeComplete: this.state.storyFlags.prototypeComplete,
+      completedMissions: this.state.completedMissions,
+      unlockedChapters: this.state.unlockedChapters,
+      battle
+    });
   }
 
   resize() {
@@ -497,6 +635,8 @@ export class Game {
         this.cameraController.update(battleScene.aegis, this.input, dt, this.state.settings.mouseSensitivity);
       }
     }
+
+    this.updateSmokeDebug();
 
     this.renderer.render(this.scene, this.camera);
     this.input.frameEnd();

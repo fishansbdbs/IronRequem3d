@@ -1,24 +1,23 @@
-import { MISSIONS } from '../data/missions.js';
-
 export class BriefingScene {
-  constructor({ modal, onLaunch }) {
+  constructor({ modal, mission, onLaunch }) {
     this.modal = modal;
+    this.mission = mission;
     this.onLaunch = onLaunch;
   }
 
   show() {
-    const mission = MISSIONS.ironWake;
+    const mission = this.mission;
     this.modal.open({
       title: mission.name,
       subtitle: `${mission.location} / Target: ${mission.enemy}`,
       body: `
         <div class="briefing-grid">
-          <div class="holo-map">
+          <div class="holo-map ${mission.environment}">
             <div class="rift-pulse"></div>
-            <span>Sector 7-Delta</span>
+            <span>${mission.sector}</span>
           </div>
           <div>
-            <p>Enemy silhouette confirms VB-01 Fracture Worm. Avoid telegraphs, preserve Hull, and bring AEGIS-7 home.</p>
+            <p>${mission.brief}</p>
             <ul>${mission.objectives.map((objective) => `<li>${objective}</li>`).join('')}</ul>
             <p class="reward">Reward: ${mission.reward.salvage} Salvage / ${mission.reward.sync} Sync</p>
           </div>

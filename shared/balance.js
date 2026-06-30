@@ -7,7 +7,9 @@ export const BASE_STATS = {
   meleePower: 10,
   riflePower: 8,
   dashCooldown: 1.2,
-  syncRate: 0
+  syncRate: 0,
+  signalResistance: 0,
+  overdriveRecovery: 0
 };
 
 export const UPGRADE_DEFS = {
@@ -53,13 +55,89 @@ export const UPGRADE_DEFS = {
     amount: 5,
     cost: 80,
     description: 'Improves neural link response during Overdrive buildup.'
+  },
+  'reinforced-frame': {
+    name: 'Reinforced Frame',
+    stat: 'hull',
+    amount: 25,
+    cost: 90,
+    unlockChapter: 'chapter-2-hollow-signal',
+    requirement: 'Unlocked after Chapter 1',
+    description: 'Rook welds heavier frame members into AEGIS-7 after the Fracture Worm damage report.'
+  },
+  'focused-rifle-core': {
+    name: 'Focused Rifle Core',
+    stat: 'riflePower',
+    amount: 4,
+    cost: 95,
+    unlockChapter: 'chapter-2-hollow-signal',
+    requirement: 'Unlocked after Chapter 1',
+    description: 'A tighter compression core keeps rifle bursts stable through Hollow Signal interference.'
+  },
+  'blade-actuator': {
+    name: 'Blade Actuator',
+    stat: 'meleePower',
+    amount: 4,
+    cost: 95,
+    unlockChapter: 'chapter-2-hollow-signal',
+    requirement: 'Unlocked after Chapter 1',
+    description: 'Adds a second-stage blade actuator for cleaner follow-through and heavier impact.'
+  },
+  'emergency-thrusters': {
+    name: 'Emergency Thrusters',
+    stat: 'dashCooldown',
+    amount: -0.2,
+    cost: 110,
+    minimum: 0.55,
+    unlockChapter: 'chapter-2-hollow-signal',
+    requirement: 'Unlocked after Chapter 1',
+    description: 'Auxiliary venting lets AEGIS-7 dash again a little sooner under pressure.'
+  },
+  'signal-anchor': {
+    name: 'Signal Anchor',
+    stat: 'signalResistance',
+    amount: 1,
+    cost: 130,
+    unlockChapter: 'chapter-3-redline-descent',
+    requirement: 'Unlocked after Chapter 2',
+    description: 'Vael routes hostile signal noise into a grounded buffer during the Redline descent.'
+  },
+  'sync-capacitor': {
+    name: 'Sync Capacitor',
+    stat: 'syncRate',
+    amount: 5,
+    cost: 140,
+    unlockChapter: 'chapter-3-redline-descent',
+    requirement: 'Unlocked after Chapter 2',
+    description: 'Stores small neural sync surges so Overdrive builds slightly faster in extended fights.'
+  },
+  'overdrive-stabilizer': {
+    name: 'Overdrive Stabilizer',
+    stat: 'overdriveRecovery',
+    amount: 0.5,
+    cost: 150,
+    unlockChapter: 'chapter-3-redline-descent',
+    requirement: 'Unlocked after Chapter 2',
+    description: 'Reduces post-Overdrive recoil so the blade arm returns to guard faster.'
   }
 };
 
-export const MISSION_REWARD = {
-  salvage: 100,
-  sync: 15
+export const MISSION_REWARDS = {
+  'operation-iron-wake': {
+    salvage: 100,
+    sync: 15
+  },
+  'operation-hollow-signal': {
+    salvage: 150,
+    sync: 20
+  },
+  'operation-redline-descent': {
+    salvage: 200,
+    sync: 25
+  }
 };
+
+export const MISSION_REWARD = MISSION_REWARDS['operation-iron-wake'];
 
 export const BATTLE_BALANCE = {
   playerHull: 100,

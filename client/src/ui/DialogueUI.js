@@ -35,7 +35,7 @@ export class DialogueUI {
       this.choices.forEach((choice) => {
         const button = document.createElement('button');
         button.className = 'ui-button secondary';
-        button.textContent = choice.label;
+        button.innerHTML = `<span>${choice.label}</span><small>${choice.tone}</small>`;
         button.addEventListener('click', () => this.finish(choice));
         actions.appendChild(button);
       });

@@ -3,8 +3,9 @@ import { ModelFactory } from '../game/ModelFactory.js';
 import { VFXFactory } from '../game/VFXFactory.js';
 
 export class HangarScene {
-  constructor({ scene }) {
+  constructor({ scene, mission }) {
     this.scene = scene;
+    this.mission = mission;
     this.root = new THREE.Group();
     this.clock = 0;
     this.build();
@@ -50,12 +51,41 @@ export class HangarScene {
     this.stars = VFXFactory.createStars(90, 80);
     this.stars.position.z = -35;
     this.root.add(this.stars);
+
+    if (this.mission.environment === 'broadcast') {
+      for (let i = 0; i < 5; i += 1) {
+        const mast = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.05, 0.08, 3.2, 8),
+          ModelFactory.material(i % 2 ? 'blue' : 'red')
+        );
+        mast.position.set(-5 + i * 2.4, 1.6, -7);
+        mast.rotation.z = Math.sin(i) * 0.18;
+        this.root.add(mast);
+      }
+    }
+
+    if (this.mission.environment === 'redline') {
+      const elevator = new THREE.Mesh(
+        new THREE.BoxGeometry(7, 0.2, 7),
+        new THREE.MeshStandardMaterial({ color: 0x3b1a1e, roughness: 0.6, metalness: 0.65 })
+      );
+      elevator.position.set(0, 0.32, 1.8);
+      this.root.add(elevator);
+      for (let i = 0; i < 6; i += 1) {
+        const lamp = new THREE.PointLight(0xff3030, 1.4, 8);
+        lamp.position.set(i % 2 ? -4.4 : 4.4, 2.5, -7 + i * 2.3);
+        this.root.add(lamp);
+      }
+    }
   }
 
   update(dt) {
     this.clock += dt;
     this.aegis.position.y = 0.2 + Math.sin(this.clock * 1.8) * 0.04;
     this.aegis.getObjectByName('core').material.emissiveIntensity = 1.5 + Math.sin(this.clock * 5) * 0.4;
+    if (this.mission.environment === 'broadcast') {
+      this.stars.rotation.z += dt * 0.12;
+    }
   }
 
   dispose() {
