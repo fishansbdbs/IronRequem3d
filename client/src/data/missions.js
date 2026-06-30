@@ -53,13 +53,7 @@ export const MISSIONS = {
     objective: 'Defeat Echo Stalker.',
     brief:
       'Arc-12 has locked a repeating signal inside a collapsed broadcast tower. Vael recognized the rhythm before the sensors did.',
-    objectives: [
-      'Deploy AEGIS-7',
-      'Reach the broadcast tower',
-      'Destroy Rift Shards',
-      'Survive signal interference',
-      'Defeat Echo Stalker'
-    ],
+    objectives: ['Deploy AEGIS-7', 'Reach the broadcast tower', 'Destroy Rift Shards', 'Survive signal interference', 'Defeat Echo Stalker'],
     reward: MISSION_REWARDS['operation-hollow-signal'],
     launchSubtitle: 'Broadcast insertion. Static shield cycling.',
     launchBody:
@@ -91,14 +85,8 @@ export const MISSIONS = {
     environment: 'redline',
     objective: 'Defeat Redline Colossus.',
     brief:
-      'The Hollow Signal leads underground into a collapsing transit grid. The Veilborn have nested around the old Redline, and something huge is guarding the rails.',
-    objectives: [
-      'Descend into Redline Tunnel',
-      'Clear Veilborn nests',
-      'Protect AEGIS-7 from tunnel collapse',
-      'Defeat Redline Colossus',
-      'Escape before collapse timer ends'
-    ],
+      'The Hollow Signal leads underground into a collapsing transit grid. Veilborn nests wind through the Redline and something huge guards the rails.',
+    objectives: ['Descend into Redline Tunnel', 'Clear Veilborn nests', 'Protect AEGIS-7 from tunnel collapse', 'Defeat Redline Colossus', 'Escape before collapse timer ends'],
     reward: MISSION_REWARDS['operation-redline-descent'],
     launchSubtitle: 'Underground insertion. Drop elevator primed.',
     launchBody:
@@ -106,25 +94,249 @@ export const MISSIONS = {
     launchLines: [
       { time: 0.5, speaker: 'System', text: 'Drop elevator clamps engaged.' },
       { time: 1.5, speaker: 'Nira', text: 'This may be a trap. We still go because Arc-12 cannot outrun the signal forever.' },
-      { time: 2.8, speaker: 'Sera', text: 'Kaito, your stress curve changed after the last sync. Tell me if the tunnel answers back.' },
+      { time: 2.8, speaker: 'Sera', text: 'Tell me if the tunnel answers back.' },
       { time: 4.0, speaker: 'Vael', text: 'I have already plotted the descent. No one ordered me to do that.' },
-      { time: 5.1, speaker: 'Rook', text: 'Redline frame stress is ugly. Try not to let a train monster punch the new plating.' },
+      { time: 5.1, speaker: 'Rook', text: 'Try not to let a train monster punch the new plating.' },
       { time: 6.6, speaker: 'System', text: 'AEGIS-7 / REDLINE DESCENT' }
     ],
     callouts: [
       { speaker: 'Nira', text: 'Tunnel collapse markers are live. Keep moving between strikes.' },
       { speaker: 'Vael', text: 'The Colossus chest core is exposed after heavy attacks.' },
       { speaker: 'Rook', text: 'That armor is old train plating fused into bone. I hate how interesting that is.' },
-      { speaker: 'Sera', text: 'Your fear response just flattened. That is not calm, Kaito. That is overload.' }
+      { speaker: 'Sera', text: 'That is not calm, Kaito. That is overload.' }
     ]
+  },
+  glassHorizon: {
+    id: 'operation-glass-horizon',
+    chapterId: 'chapter-4-glass-horizon',
+    name: 'Operation Glass Horizon',
+    enemy: 'Prism Leviathan',
+    enemyId: 'prism-leviathan',
+    bossFactory: 'createPrismLeviathan',
+    location: 'Glassed Coast',
+    sector: 'Old Shoreline / Mirror Flats',
+    environment: 'glassed-coast',
+    objective: 'Defeat Prism Leviathan.',
+    brief:
+      'The shore outside Arc-12 has vitrified into a reflective battlefield. The Leviathan copies heat signatures and turns the skyline into false targets.',
+    objectives: ['Cross the glassed coast', 'Track the real reflection', 'Break mirror clones', 'Defeat Prism Leviathan', 'Recover refraction samples'],
+    reward: MISSION_REWARDS['operation-glass-horizon'],
+    launchSubtitle: 'Coastal drop. Refraction filters online.',
+    launchBody:
+      'The rail opens toward a horizon that reflects Arc-12 back upside down. Vael marks three exits and admits none of them look real.',
+    launchLines: [
+      { time: 0.5, speaker: 'System', text: 'Mirror filters calibrated.' },
+      { time: 1.7, speaker: 'Nira', text: 'Glass Horizon is not a scouting run. Break the Leviathan before it maps us.' },
+      { time: 2.8, speaker: 'Vael', text: 'I count one shoreline and seven lies about it.' },
+      { time: 4.1, speaker: 'Rook', text: 'New rifle lens is tuned. Please shoot the real one.' },
+      { time: 5.4, speaker: 'System', text: 'AEGIS-7 / GLASS HORIZON DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Vael', text: 'Reflection mismatch. The left silhouette has no shadow.' },
+      { speaker: 'Nira', text: 'Do not chase the mirrors. Hold position and force it to commit.' },
+      { speaker: 'Rook', text: 'That beam is bouncing off the floor. Rude and educational.' },
+      { speaker: 'Sera', text: 'Your visual cortex is double-counting targets. Pick one breath, then one target.' }
+    ]
+  },
+  blackOrchard: {
+    id: 'operation-black-orchard',
+    chapterId: 'chapter-5-black-orchard',
+    name: 'Operation Black Orchard',
+    enemy: 'Hollow Stag',
+    enemyId: 'hollow-stag',
+    bossFactory: 'createHollowStag',
+    location: 'Black Orchard',
+    sector: 'Agricultural Ring / Dead Growth',
+    environment: 'black-orchard',
+    objective: 'Defeat Hollow Stag.',
+    brief:
+      'Veilborn roots have grown through the old agricultural ring. Dr. Lira Mave believes the orchard is communicating through damaged pilot memories.',
+    objectives: ['Enter the orchard ring', 'Avoid root snares', 'Destroy spore hearts', 'Defeat Hollow Stag', 'Extract Lira data'],
+    reward: MISSION_REWARDS['operation-black-orchard'],
+    launchSubtitle: 'Agricultural ring breach. Spore seals armed.',
+    launchBody:
+      'AEGIS-7 kneels under decontamination light while black pollen drifts against the hangar doors like ash from a quiet fire.',
+    launchLines: [
+      { time: 0.6, speaker: 'Sera', text: 'Spore filters are sealed. Your memories are not.' },
+      { time: 1.8, speaker: 'Vael', text: 'The orchard is transmitting in patterns similar to grief.' },
+      { time: 3.0, speaker: 'Nira', text: 'No one follows phantom voices. That is an order.' },
+      { time: 4.4, speaker: 'Rook', text: 'Rootbreaker actuators are live. Chop first, think later. Strategically.' },
+      { time: 5.8, speaker: 'System', text: 'AEGIS-7 / BLACK ORCHARD DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Sera', text: 'That sound is memory bleed. It cannot hurt you unless you answer it.' },
+      { speaker: 'Vael', text: 'Root growth converging under your feet.' },
+      { speaker: 'Nira', text: 'The Stag is trying to herd you. Break the pattern.' },
+      { speaker: 'Rook', text: 'The antlers are conductive. The antlers are also trying to kill you.' }
+    ]
+  },
+  silentChoir: {
+    id: 'operation-silent-choir',
+    chapterId: 'chapter-6-silent-choir',
+    name: 'Operation Silent Choir',
+    enemy: 'Cantor Null',
+    enemyId: 'cantor-null',
+    bossFactory: 'createCantorNull',
+    location: 'Cathedral Relay',
+    sector: 'Old Civic Core / Acoustic Sink',
+    environment: 'silent-choir',
+    objective: 'Defeat Cantor Null.',
+    brief:
+      'The broadcast signal has become a choir with no singers. Every silent pulse steals a sliver of pilot intent before Vael can name it.',
+    objectives: ['Enter the relay nave', 'Keep sync above silence threshold', 'Destroy choir pylons', 'Defeat Cantor Null', 'Return before identity drift'],
+    reward: MISSION_REWARDS['operation-silent-choir'],
+    launchSubtitle: 'Choir relay approach. Neural dampers armed.',
+    launchBody:
+      'The hangar goes soundless for three seconds. When noise returns, Vael is already speaking softer than before.',
+    launchLines: [
+      { time: 0.5, speaker: 'System', text: 'Neural dampers synchronized.' },
+      { time: 1.9, speaker: 'Vael', text: 'If I become quiet, Kaito, do not assume I consented.' },
+      { time: 3.0, speaker: 'Nira', text: 'Silent Choir is a hostile relay. Cut the conductor.' },
+      { time: 4.3, speaker: 'Sera', text: 'Anchor on your name. Say it if you have to.' },
+      { time: 5.7, speaker: 'System', text: 'AEGIS-7 / SILENT CHOIR DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Vael', text: 'Cantor harmonic rising. Move before the ring closes.' },
+      { speaker: 'Sera', text: 'Kaito. Kaito Ashveil. Stay with that.' },
+      { speaker: 'Nira', text: 'You are not alone in that cockpit.' },
+      { speaker: 'Rook', text: 'Choir pylons are resonating with the rifle core. I strongly dislike coincidences.' }
+    ]
+  },
+  ashfallCradle: {
+    id: 'operation-ashfall-cradle',
+    chapterId: 'chapter-7-ashfall-cradle',
+    name: 'Operation Ashfall Cradle',
+    enemy: 'Cradle Behemoth',
+    enemyId: 'cradle-behemoth',
+    bossFactory: 'createCradleBehemoth',
+    location: 'Ashfall Cradle',
+    sector: 'Impact Basin / Arc-9 Debris',
+    environment: 'ashfall',
+    objective: 'Defeat Cradle Behemoth.',
+    brief:
+      'A basin filled with Arc-9 debris has begun breathing. The Behemoth beneath it cradles wreckage like a nest and wears old unit tags as armor.',
+    objectives: ['Drop into the impact basin', 'Survive ash surges', 'Break armor plates', 'Defeat Cradle Behemoth', 'Recover Arc-9 tags'],
+    reward: MISSION_REWARDS['operation-ashfall-cradle'],
+    launchSubtitle: 'Basin insertion. Ash seals hot.',
+    launchBody:
+      'Kaito watches Arc-9 identifiers scroll across the hangar glass. Nira does not ask if he recognizes any names.',
+    launchLines: [
+      { time: 0.5, speaker: 'System', text: 'Ash seals pressurized.' },
+      { time: 1.8, speaker: 'Nira', text: 'Ashveil, the basin is not a memorial while it is attacking us.' },
+      { time: 3.2, speaker: 'Sera', text: 'You can grieve after. Right now, stay alive.' },
+      { time: 4.6, speaker: 'Vael', text: 'I have marked the tags. I will remember them if you cannot.' },
+      { time: 6.0, speaker: 'System', text: 'AEGIS-7 / ASHFALL CRADLE DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Nira', text: 'Its armor opens after the quake. Strike then.' },
+      { speaker: 'Vael', text: 'Ground pressure rising. Jump line recommended.' },
+      { speaker: 'Sera', text: 'I know what you saw on that plate. Keep moving.' },
+      { speaker: 'Rook', text: 'That crater should not have muscles. Yet here we are.' }
+    ]
+  },
+  vaelsDoor: {
+    id: 'operation-vaels-door',
+    chapterId: 'chapter-8-vaels-door',
+    name: "Operation Vael's Door",
+    enemy: 'Prototype L-0',
+    enemyId: 'prototype-l0',
+    bossFactory: 'createPrototypeL0',
+    location: 'Sealed Lab L-0',
+    sector: 'Arc-12 Sublevel / Black Archive',
+    environment: 'sealed-lab',
+    objective: 'Defeat Prototype L-0.',
+    brief:
+      "A sealed Arc-12 lab opens without authorization. Inside waits an AEGIS predecessor carrying Vael's earliest voice prints.",
+    objectives: ['Enter Black Archive', 'Protect Vael core integrity', 'Counter prototype sync attacks', 'Defeat Prototype L-0', 'Decide what to tell Nira'],
+    reward: MISSION_REWARDS['operation-vaels-door'],
+    launchSubtitle: 'Internal deployment. Archive doors unlocked.',
+    launchBody:
+      'No catapult fires. AEGIS-7 walks under Arc-12 through doors that Vael insists it did not open, then apologizes for lying.',
+    launchLines: [
+      { time: 0.5, speaker: 'System', text: 'Internal combat frame released.' },
+      { time: 1.7, speaker: 'Vael', text: 'That door has my handwriting.' },
+      { time: 2.9, speaker: 'Nira', text: 'This was buried for a reason. We find the reason armed.' },
+      { time: 4.2, speaker: 'Rook', text: 'Prototype countermeasure loaded. It is legal in the sense that no one stopped me.' },
+      { time: 5.6, speaker: 'System', text: 'AEGIS-7 / VAEL DOOR DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Vael', text: 'It is using my old routines. I hate that I recognize the elegance.' },
+      { speaker: 'Nira', text: 'Do not let it turn our systems into witnesses.' },
+      { speaker: 'Rook', text: 'That frame is obsolete only on paper. Dodge like it is offended.' },
+      { speaker: 'Sera', text: 'Kaito, tell me whether the voice is yours or his.' }
+    ]
+  },
+  heavenStatic: {
+    id: 'operation-heaven-static',
+    chapterId: 'chapter-9-heaven-static',
+    name: 'Operation Heaven Static',
+    enemy: 'Seraphim Veil',
+    enemyId: 'seraphim-veil',
+    bossFactory: 'createSeraphimVeil',
+    location: 'Upper Rift Weather',
+    sector: 'Skyhook Array / Broken Stratosphere',
+    environment: 'sky-rift',
+    objective: 'Defeat Seraphim Veil.',
+    brief:
+      'The signal climbs into the weather and becomes wings. Seraphim Veil guards the skyhook path to the origin aperture over Arc-12.',
+    objectives: ['Launch through the skyhook', 'Stabilize gravity anchors', 'Survive wing barrages', 'Defeat Seraphim Veil', 'Open route to origin aperture'],
+    reward: MISSION_REWARDS['operation-heaven-static'],
+    launchSubtitle: 'Skyhook rail. Gravity anchors live.',
+    launchBody:
+      'AEGIS-7 rides the launch frame upward until Arc-12 looks like a wound with lights around it.',
+    launchLines: [
+      { time: 0.5, speaker: 'System', text: 'Skyhook rail pressurized.' },
+      { time: 1.7, speaker: 'Vael', text: 'Weather is broadcasting. That sentence should not be possible.' },
+      { time: 3.0, speaker: 'Nira', text: 'Break the guardian and we get one route into the heart.' },
+      { time: 4.2, speaker: 'Sera', text: 'Altitude drift is affecting sync. Stay inside your body.' },
+      { time: 5.8, speaker: 'System', text: 'AEGIS-7 / HEAVEN STATIC DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Vael', text: 'Gravity well forming at your flank.' },
+      { speaker: 'Nira', text: 'Use the anchors. Do not fight the entire sky.' },
+      { speaker: 'Rook', text: 'Those wings are hard-light math. Shoot the math.' },
+      { speaker: 'Sera', text: 'Your sync wants to float. Pull it down.' }
+    ]
+  },
+  ironRequiem: {
+    id: 'operation-iron-requiem',
+    chapterId: 'chapter-10-iron-requiem',
+    name: 'Operation Iron Requiem',
+    enemy: 'Requiem Heart',
+    enemyId: 'requiem-heart',
+    bossFactory: 'createRequiemHeart',
+    location: 'Veil Core Aperture',
+    sector: 'Origin Signal / Above Arc-12',
+    environment: 'veil-core',
+    objective: 'End the Requiem Heart.',
+    brief:
+      'Every signal leads to the Requiem Heart: a living origin relay wearing fragments of every enemy AEGIS-7 survived.',
+    objectives: ['Enter the origin aperture', 'Survive composite attack phases', 'Choose what Arc-12 becomes', 'End the Requiem Heart'],
+    reward: MISSION_REWARDS['operation-iron-requiem'],
+    launchSubtitle: 'Final operation. Requiem Core armed.',
+    launchBody:
+      'The hangar crew falls silent as AEGIS-7 steps into the rail. Vael speaks last, and this time no one calls it a system line.',
+    launchLines: [
+      { time: 0.5, speaker: 'System', text: 'Requiem Core accepting pilot sync.' },
+      { time: 1.8, speaker: 'Nira', text: 'Kaito, come back. That is an order and a request.' },
+      { time: 3.0, speaker: 'Rook', text: 'AEGIS-7 is holding together because we asked it nicely and used all the bolts.' },
+      { time: 4.2, speaker: 'Sera', text: 'You are allowed to want a future after this.' },
+      { time: 5.4, speaker: 'Vael', text: 'Kaito. I am afraid. I think that means I am with you.' },
+      { time: 6.8, speaker: 'System', text: 'AEGIS-7 / IRON REQUIEM DEPLOY' }
+    ],
+    callouts: [
+      { speaker: 'Vael', text: 'It is borrowing every pattern we survived. We survived them once.' },
+      { speaker: 'Nira', text: 'Arc-12 is watching your signal. Show them we are not finished.' },
+      { speaker: 'Rook', text: 'Composite phase. Worm, Colossus, angel thing. Horrible reunion.' },
+      { speaker: 'Sera', text: 'Hold your name. Hold your people. Then strike.' }
+    ],
+    finaleOptions: ['hold-arc12', 'sever-the-choir', 'vael-open-door', 'evacuate-and-return', 'become-the-lock']
   }
 };
 
-export const MISSION_BY_CHAPTER = {
-  'chapter-1-iron-wake': MISSIONS.ironWake,
-  'chapter-2-hollow-signal': MISSIONS.hollowSignal,
-  'chapter-3-redline-descent': MISSIONS.redlineDescent
-};
+export const MISSION_BY_CHAPTER = Object.fromEntries(
+  Object.values(MISSIONS).map((mission) => [mission.chapterId, mission])
+);
 
 export function getMissionByChapter(chapterId) {
   return MISSION_BY_CHAPTER[chapterId] || MISSIONS.ironWake;

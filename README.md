@@ -1,23 +1,20 @@
 # IRON REQUIEM 3D REMASTER
 
-`v0.2.0 - Echoes Beyond Arc-12` continues the clean 3D remaster through Chapter 3. It rebuilds the old visual-novel idea as a Vite and Three.js browser game with a small Express and Socket.IO server scaffold.
+`v0.3.0 - Arc-12 Campaign Expansion` expands the clean 3D remaster into a playable ten-chapter Arc-12 campaign. It remains a Vite and Three.js browser game with the existing Express and Socket.IO server scaffold.
 
 The old Iron Requiem ZIP was inspected only for story, terminology, tone, characters, chapter concepts, upgrades, and battle ideas. The bundled old HTML was not edited or copied.
 
 ## What Is Included
 
-- Dramatic main menu with animated procedural AEGIS-7 backdrop.
-- Chapter 1 - Iron Wake, Chapter 2 - Hollow Signal, and Chapter 3 - Redline Descent.
-- Walkable Arc-12 command hub with Kaito Ashveil.
-- Commander Nira, Vael Terminal, Engineer Rook, and Medic Sera interactions with chapter-specific dialogue.
-- Dialogue choices that record Kaito's tone, affect crew bonds, set story flags, and persist in saves.
-- Action Points, crew bonds, objective updates, upgrades, and LocalStorage saves.
-- Emergency end-day flow, Operation Iron Wake briefing, and hangar walk-in.
-- Mission-specific AEGIS-7 launch sequences.
-- Third-person mecha battles against Fracture Worm, Echo Stalker, and Redline Colossus with telegraphs, dash, melee, rifle, Sync, Overdrive Slash, and crew callouts.
-- Broadcast District and Redline Tunnel environments with unique boss models, summons, and attack patterns.
-- Expanded mission results and return to Arc-12.
-- Netlify client config and Render server config.
+- Main menu showing `IRON REQUIEM 3D REMASTER`, `Arc-12 Campaign Expansion`, and `v0.3.0`.
+- A walkable Arc-12 facility with central atrium, command corridor, Commander Nira's room, hangar bay, engineering deck, med bay, pilot quarters, Vael sync chamber, research lab, observation deck, and briefing room.
+- Facility map opened from the central map terminal or the `M` key.
+- Commander Nira, Vael, Engineer Rook, and Medic Sera interactions with chapter-specific dialogue and choices.
+- Action Points, crew bonds, objective updates, upgrades, ending flags, and schema v3 LocalStorage saves.
+- Ten chapters and ten operations, from Operation Iron Wake through Operation Iron Requiem.
+- Mission-specific briefings, hangar flavor, launch lines, battle environments, crew callouts, rewards, aftermath scenes, and final protocol ending choices.
+- Third-person mecha battles with telegraphs, dash, melee, rifle, Sync, Overdrive Slash, summons, projectiles, and procedural boss models.
+- Netlify client config and Render server config unchanged.
 
 ## Local Setup
 
@@ -67,7 +64,7 @@ Hub:
 - Mouse drag: camera
 - E: interact
 - Shift: sprint
-- Tab: objective panel placeholder
+- M: facility map
 - Esc: settings/modal escape in supported scenes
 
 Battle:
@@ -80,39 +77,34 @@ Battle:
 - Q: Overdrive Slash when Sync is full
 - Shift: boost movement
 
-AEGIS-7 now animates melee swings, rifle recoil and beam fire, dash flares, and Overdrive Slash. Enemy boss attacks use windup, telegraph, attack motion, impact, and recovery timing.
-
 ## Chapters And Missions
 
-- Chapter 1 - Iron Wake: Operation Iron Wake in the Ruined City Outskirts, ending with Fracture Worm.
-- Chapter 2 - Hollow Signal: Operation Hollow Signal in the Ruined Broadcast District, ending with Echo Stalker.
-- Chapter 3 - Redline Descent: Operation Redline Descent in the Subway Ruins / Redline Tunnel, ending with Redline Colossus.
+- Chapter 1 - Iron Wake: Operation Iron Wake, Fracture Worm, Ruined City Outskirts.
+- Chapter 2 - Hollow Signal: Operation Hollow Signal, Echo Stalker, Ruined Broadcast District.
+- Chapter 3 - Redline Descent: Operation Redline Descent, Redline Colossus, Subway Ruins / Redline Tunnel.
+- Chapter 4 - Glass Horizon: Operation Glass Horizon, Prism Leviathan, Glassed Coast.
+- Chapter 5 - Black Orchard: Operation Black Orchard, Hollow Stag, Black Orchard.
+- Chapter 6 - Silent Choir: Operation Silent Choir, Cantor Null, Cathedral Relay.
+- Chapter 7 - Ashfall Cradle: Operation Ashfall Cradle, Cradle Behemoth, Ashfall Cradle.
+- Chapter 8 - Vael's Door: Operation Vael's Door, Prototype L-0, Sealed Lab L-0.
+- Chapter 9 - Heaven Static: Operation Heaven Static, Seraphim Veil, Upper Rift Weather.
+- Chapter 10 - Iron Requiem: Operation Iron Requiem, Requiem Heart, Veil Core Aperture.
 
-After each mission, the save unlocks the next chapter, updates the active mission, refreshes Arc-12 dialogue, and records expanded mission history.
+After each mission, the save unlocks the next chapter, updates the active mission, refreshes Arc-12 dialogue, records mission history, and unlocks chapter-gated upgrades.
 
 ## Hub Phase
 
-Arc-12 is a compact 3D command deck with the Command Center, Hangar Access, Pilot Quarters, Research Terminal, Upgrade Bay, Observation Window, Briefing Table, and Vael Sync Terminal. Interact with crew and terminals to spend AP, raise bonds, open upgrades, end the day, and launch the mission flow.
+Arc-12 is now a compact connected facility. The player spawns in Central Command Atrium and can walk to the command corridor, Nira office, briefing room, observation deck, Vael sync chamber, research lab, med bay, pilot quarters, hangar bay, and engineering deck.
 
-## AP, Bonds, and Upgrades
+The map modal shows the current room, visited rooms, and NPC/system locations. Pilot quarters, research, and observation consoles add optional AP usage beyond crew conversations.
 
-Each day starts with 3 AP. Crew interactions spend AP once per activity and can increase crew bonds. Important conversations offer 2-3 Kaito responses such as Tactical, Supportive, Defiant, Quiet, and Honest. Choices are saved in `dialogueChoices`, accumulated in `toneRecord`, and can set future story flags.
+## AP, Bonds, Upgrades, And Endings
 
-AEGIS-7 upgrades are data-driven through `shared/balance.js` and saved through the versioned LocalStorage schema. v0.2.0 adds Reinforced Frame, Focused Rifle Core, Blade Actuator, Emergency Thrusters, Signal Anchor, Sync Capacitor, and Overdrive Stabilizer with chapter unlock requirements.
+Each day starts with 3 AP. Crew interactions spend AP once per activity and can increase crew bonds. Important conversations offer Kaito responses such as Tactical, Supportive, Defiant, Quiet, and Honest. Choices are saved in `dialogueChoices`, accumulated in `toneRecord`, and can set ending flags.
 
-## Launch Sequence
+AEGIS-7 upgrades are data-driven through `shared/balance.js` and saved through the versioned LocalStorage schema. v0.3 adds late-campaign upgrades such as Reflective Plating, Rootbreaker Actuators, Resonance Filter, Prototype Countermeasure, Gravity Anchor, Rift Targeting Array, and Requiem Core.
 
-The launch sequence pans over AEGIS-7, unlocks clamps, stabilizes Vael's neural link, opens hangar doors or descent frames, ignites thrusters, and transitions into the selected battlefield. Mission data in `client/src/data/missions.js` controls launch lines and environment flavor.
-
-## Battle
-
-Mission 1 takes place in the Ruined City Outskirts. The Fracture Worm uses Bite Lunge, Burrow Strike, Rift Spit, Tail Sweep, and limited Rift Shard summons.
-
-Mission 2 takes place in the Ruined Broadcast District. Echo Stalker uses Signal Lance, Static Pounce, Echo Clone, Tower Pulse, and Shard Call with signal distortion.
-
-Mission 3 takes place in the Subway Ruins / Redline Tunnel. Redline Colossus uses Rail Slam, Tunnel Collapse, Core Roar, Charge Downline, Summon Crawlers, and a faster phase 2 below half Hull.
-
-Damage lands after red telegraphs, not before.
+After Operation Iron Requiem, the final protocol modal offers ending choices based on the campaign state and bonds.
 
 ## Adding Content
 
@@ -141,7 +133,7 @@ Render:
 
 ## Known Limitations
 
-- The prototype uses procedural geometry instead of authored GLB models.
-- Physics are lightweight distance checks rather than a full Rapier simulation.
-- Routes and endings are prepared through data and save shape but not fully implemented.
-- Mobile layout is responsive, but the current controls are desktop-first.
+- The game uses procedural geometry instead of authored GLB character and environment models.
+- Physics are lightweight distance checks rather than a full rigid-body simulation.
+- Chapters 7-10 are fully playable but use more compact encounter logic than a bespoke boss engine would.
+- Mobile layout is responsive, but controls remain desktop-first.

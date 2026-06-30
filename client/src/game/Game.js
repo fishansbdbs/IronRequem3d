@@ -38,6 +38,7 @@ import { PatchNotesUI } from '../ui/PatchNotesUI.js';
 import { SettingsUI } from '../ui/SettingsUI.js';
 import { BattleUI } from '../ui/BattleUI.js';
 import { MissionResults } from '../ui/MissionResults.js';
+import { FacilityMapUI } from '../ui/FacilityMapUI.js';
 
 export class Game {
   constructor(root) {
@@ -69,6 +70,7 @@ export class Game {
     this.dialogues = new DialogueSystem(this.dialogueUI);
     this.battleUI = new BattleUI(this.uiHost);
     this.patchNotes = new PatchNotesUI(this.modal);
+    this.facilityMap = new FacilityMapUI(this.modal);
     this.crewBonds = new CrewBondUI(this.modal);
     this.resultsUI = new MissionResults(this.modal);
     this.settingsUI = new SettingsUI(this.modal, {
@@ -222,6 +224,10 @@ export class Game {
       onInteract: (item) => this.handleHubInteract(item)
     });
     this.currentScene.setEmergency(this.state.storyFlags.emergencyStarted);
+    if (this.state.storyFlags.campaignComplete && !this.state.endingUnlocked && !this.endingPromptShown) {
+      this.endingPromptShown = true;
+      setTimeout(() => this.showEndingSelection(), 200);
+    }
   }
 
   handleHubInteract(item) {
@@ -252,7 +258,70 @@ export class Game {
       }
     } else if (item.action === 'end-day') {
       this.endDay();
+    } else if (item.action === 'map') {
+      this.openFacilityMap();
+    } else if (item.action === 'rest') {
+      this.runFacilityActivity('quarters', {
+        title: 'Pilot Quarters',
+        body: '<p>Kaito takes one quiet hour beside the Arc-9 memory board. Hull recovery routines cycle while the room remembers how to be still.</p>'
+      });
+    } else if (item.action === 'research') {
+      this.runFacilityActivity('research', {
+        title: 'Research Lab',
+        body: '<p>Recovered Veilborn samples rotate inside dark glass. Vael cross-checks Lira Mave notes and marks several patterns as almost language.</p>'
+      });
+    } else if (item.action === 'observe') {
+      this.runFacilityActivity('observation', {
+        title: 'Observation Deck',
+        body: '<p>The aperture above Arc-12 pulses beyond the observation glass. Nira calls it weather. Vael does not correct her.</p>'
+      });
     }
+  }
+
+  openFacilityMap() {
+    this.audio.ui();
+    this.facilityMap.open(this.state);
+  }
+
+  runFacilityActivity(activityId, { title, body }) {
+    const beforeAp = this.state.ap.current;
+    this.state = spendForCrew(this.state, activityId);
+    saveGame(this.state);
+    const spent = this.state.ap.current < beforeAp ? '<p class="reward">AP spent. Arc-12 state updated.</p>' : '<p class="reward">No AP spent. Activity already logged for today or AP is empty.</p>';
+    this.modal.open({
+      title,
+      body: `${body}${spent}`,
+      actions: [{ label: 'Close', kind: 'primary', onClick: () => this.modal.close() }]
+    });
+  }
+
+  endDay() {
+    this.audio.ui();
+    if (!this.state.storyFlags.emergencyStarted) {
+      this.state = startEmergency(this.state);
+      saveGame(this.state);
+      this.currentScene?.setEmergency?.(true);
+      this.modal.open({
+        title: 'Arc-12 Emergency',
+        subtitle: this.chapterManager.getChapterLabel(this.state),
+        body: '<p>Alert light floods the central atrium. Commander Nira authorizes AEGIS-7 deployment and routes Kaito to the briefing table.</p>',
+        actions: [{ label: 'Report to Briefing', kind: 'primary', onClick: () => {
+          this.modal.close();
+          this.openBriefing();
+        } }]
+      });
+      return;
+    }
+
+    this.state.day += 1;
+    this.state.ap.current = this.state.ap.max;
+    this.state.ap.spentActivities = [];
+    saveGame(this.state);
+    this.modal.open({
+      title: `Day ${this.state.day}`,
+      body: '<p>Arc-12 rolls into another watch cycle. Crew stations refresh and the facility hum drops back into routine tension.</p>',
+      actions: [{ label: 'Continue', kind: 'primary', onClick: () => this.modal.close() }]
+    });
   }
 
   playCrewDialogue(crewId, afterComplete) {
@@ -371,7 +440,14 @@ export class Game {
     const unlockLabels = {
       'operation-iron-wake': 'Chapter 2 - Hollow Signal',
       'operation-hollow-signal': 'Chapter 3 - Redline Descent',
-      'operation-redline-descent': 'Chapter 4 will continue the war beyond Arc-12'
+      'operation-redline-descent': 'Chapter 4 - Glass Horizon',
+      'operation-glass-horizon': 'Chapter 5 - Black Orchard',
+      'operation-black-orchard': 'Chapter 6 - Silent Choir',
+      'operation-silent-choir': 'Chapter 7 - Ashfall Cradle',
+      'operation-ashfall-cradle': "Chapter 8 - Vael's Door",
+      'operation-vaels-door': 'Chapter 9 - Heaven Static',
+      'operation-heaven-static': 'Chapter 10 - Iron Requiem',
+      'operation-iron-requiem': 'Final Protocol Available'
     };
     const enrichedResults = {
       ...results,
@@ -396,10 +472,66 @@ export class Game {
     this.dialogues.play(getAftermathDialogue(mission.id), {
       onComplete: () => this.resultsUI.open(enrichedResults, () => {
         this.modal.close();
+        const finalMission = mission.id === 'operation-iron-requiem';
         this.state = returnToArc12(this.state);
         saveGame(this.state);
         this.enterHub();
+        if (finalMission) {
+          this.showEndingSelection();
+        }
       })
+    });
+  }
+
+  showEndingSelection() {
+    const endingCopy = {
+      'hold-arc12': {
+        label: 'Hold Arc-12',
+        text: 'Kaito and the crew keep Arc-12 in the fight, turning the station into a shield instead of a tomb.'
+      },
+      'sever-the-choir': {
+        label: 'Sever the Choir',
+        text: 'Vael cuts the Requiem signal from the Veilborn network, leaving the sky quiet and dangerous in a human way.'
+      },
+      'vael-open-door': {
+        label: "Vael's Open Door",
+        text: 'Kaito trusts Vael to open a controlled aperture, proving the AI is more than a weapon system.'
+      },
+      'evacuate-and-return': {
+        label: 'Evacuate and Return',
+        text: 'Nira orders Arc-12 civilians away before the crew returns to finish what the war started.'
+      },
+      'become-the-lock': {
+        label: 'Become the Lock',
+        text: 'Kaito binds his sync to the aperture long enough to seal it, leaving Arc-12 alive and his future uncertain.'
+      }
+    };
+    const options = this.state.endingOptions.length ? this.state.endingOptions : ['hold-arc12', 'sever-the-choir'];
+    const body = `
+      <div class="ending-options">
+        ${options.map((id) => `<p><strong>${endingCopy[id]?.label || id}</strong><br>${endingCopy[id]?.text || 'Arc-12 records an unresolved ending route.'}</p>`).join('')}
+      </div>
+    `;
+    this.modal.open({
+      title: 'Final Protocol',
+      subtitle: 'Arc-12 Campaign Complete',
+      body,
+      actions: options.map((id) => ({
+        label: endingCopy[id]?.label || id,
+        kind: id === 'hold-arc12' ? 'primary' : 'secondary',
+        onClick: () => this.chooseEnding(id, endingCopy[id])
+      }))
+    });
+  }
+
+  chooseEnding(endingId, ending) {
+    this.state.endingUnlocked = endingId;
+    saveGame(this.state);
+    this.modal.open({
+      title: ending?.label || 'Arc-12 Ending',
+      subtitle: 'Iron Requiem',
+      body: `<p>${ending?.text || 'Arc-12 records the final protocol.'}</p><p class="reward">Campaign saved. ${this.state.completedMissions.length} operations completed.</p>`,
+      actions: [{ label: 'Return to Arc-12', kind: 'primary', onClick: () => this.modal.close() }]
     });
   }
 
@@ -434,26 +566,30 @@ export class Game {
   }
 
   prepareSmokeChapter(chapterId) {
+    const chapterOrder = [
+      'chapter-1-iron-wake',
+      'chapter-2-hollow-signal',
+      'chapter-3-redline-descent',
+      'chapter-4-glass-horizon',
+      'chapter-5-black-orchard',
+      'chapter-6-silent-choir',
+      'chapter-7-ashfall-cradle',
+      'chapter-8-vaels-door',
+      'chapter-9-heaven-static',
+      'chapter-10-iron-requiem'
+    ];
     let state = createInitialState();
     state.storyFlags.introSeen = true;
     state.storyFlags.emergencyStarted = true;
+    const targetIndex = Math.max(0, chapterOrder.indexOf(chapterId));
 
-    if (chapterId === 'chapter-2-hollow-signal' || chapterId === 'chapter-3-redline-descent') {
+    for (let index = 0; index < targetIndex; index += 1) {
+      const mission = getMissionByChapter(chapterOrder[index]);
       state = completeMission(state, {
-        missionId: 'operation-iron-wake',
-        salvage: 100,
-        sync: 15
-      });
-      state = returnToArc12(state);
-      state.storyFlags.emergencyStarted = true;
-    }
-
-    if (chapterId === 'chapter-3-redline-descent') {
-      state = completeMission(state, {
-        missionId: 'operation-hollow-signal',
-        salvage: 150,
-        sync: 20,
-        result: { missionName: 'Operation Hollow Signal', enemiesDefeated: 3, bossDefeated: 'Echo Stalker' }
+        missionId: mission.id,
+        salvage: mission.reward.salvage,
+        sync: mission.reward.sync,
+        result: { missionName: mission.name, enemiesDefeated: 3 + index, bossDefeated: mission.enemy }
       });
       state = returnToArc12(state);
       state.storyFlags.emergencyStarted = true;
@@ -472,7 +608,14 @@ export class Game {
     const chapterIds = {
       ch1: 'chapter-1-iron-wake',
       ch2: 'chapter-2-hollow-signal',
-      ch3: 'chapter-3-redline-descent'
+      ch3: 'chapter-3-redline-descent',
+      ch4: 'chapter-4-glass-horizon',
+      ch5: 'chapter-5-black-orchard',
+      ch6: 'chapter-6-silent-choir',
+      ch7: 'chapter-7-ashfall-cradle',
+      ch8: 'chapter-8-vaels-door',
+      ch9: 'chapter-9-heaven-static',
+      ch10: 'chapter-10-iron-requiem'
     };
     const jumpToChapter = (chapterId) => {
       this.closeSmokeOverlays();
@@ -495,7 +638,15 @@ export class Game {
       chapter1: () => jumpToChapter(chapterIds.ch1),
       chapter2: () => jumpToChapter(chapterIds.ch2),
       chapter3: () => jumpToChapter(chapterIds.ch3),
+      chapter4: () => jumpToChapter(chapterIds.ch4),
+      chapter5: () => jumpToChapter(chapterIds.ch5),
+      chapter6: () => jumpToChapter(chapterIds.ch6),
+      chapter7: () => jumpToChapter(chapterIds.ch7),
+      chapter8: () => jumpToChapter(chapterIds.ch8),
+      chapter9: () => jumpToChapter(chapterIds.ch9),
+      chapter10: () => jumpToChapter(chapterIds.ch10),
       endDay: () => this.endDay(),
+      map: () => this.openFacilityMap(),
       briefing: () => {
         if (!this.state.storyFlags.emergencyStarted) {
           this.state = startEmergency(this.state);
@@ -508,6 +659,13 @@ export class Game {
       battleChapter1: () => startChapterBattle(chapterIds.ch1),
       battleChapter2: () => startChapterBattle(chapterIds.ch2),
       battleChapter3: () => startChapterBattle(chapterIds.ch3),
+      battleChapter4: () => startChapterBattle(chapterIds.ch4),
+      battleChapter5: () => startChapterBattle(chapterIds.ch5),
+      battleChapter6: () => startChapterBattle(chapterIds.ch6),
+      battleChapter7: () => startChapterBattle(chapterIds.ch7),
+      battleChapter8: () => startChapterBattle(chapterIds.ch8),
+      battleChapter9: () => startChapterBattle(chapterIds.ch9),
+      battleChapter10: () => startChapterBattle(chapterIds.ch10),
       battleDebug: () => this.currentScene instanceof BattleScene ? ({
         missionId: this.currentScene.mission.id,
         boss: this.currentScene.boss.name,
@@ -522,6 +680,7 @@ export class Game {
       defeatBoss: () => {
         if (this.currentScene instanceof BattleScene) {
           this.currentScene.boss.damage(9999);
+          this.currentScene.finishVictory();
         }
       },
       reset: () => this.resetSave()
@@ -534,20 +693,17 @@ export class Game {
     this.smokeDebugEl = document.createElement('pre');
     this.smokeDebugEl.className = 'smoke-debug';
     const actions = [
-      ['Ch1 Hub', smoke.chapter1],
-      ['Ch2 Hub', smoke.chapter2],
-      ['Ch3 Hub', smoke.chapter3],
+      ...Object.keys(chapterIds).map((key) => [`${key.toUpperCase()} Hub`, smoke[`chapter${key.replace('ch', '')}`]]),
       ['Nira', () => smoke.crew('nira')],
       ['Vael', () => smoke.crew('vael')],
       ['Rook', () => smoke.crew('rook')],
       ['Sera', () => smoke.crew('sera')],
+      ['Map', smoke.map],
       ['End Day', smoke.endDay],
       ['Briefing', smoke.briefing],
       ['Hangar', smoke.hangar],
       ['Launch', smoke.launch],
-      ['Ch1 Battle', smoke.battleChapter1],
-      ['Ch2 Battle', smoke.battleChapter2],
-      ['Ch3 Battle', smoke.battleChapter3],
+      ...Object.keys(chapterIds).map((key) => [`${key.toUpperCase()} Battle`, smoke[`battleChapter${key.replace('ch', '')}`]]),
       ['Defeat Boss', smoke.defeatBoss]
     ];
 
@@ -582,6 +738,9 @@ export class Game {
       activeMissionId: this.state.activeMissionId,
       objective: this.state.objective,
       prototypeComplete: this.state.storyFlags.prototypeComplete,
+      campaignComplete: this.state.storyFlags.campaignComplete,
+      facility: this.state.facility,
+      endingOptions: this.state.endingOptions,
       completedMissions: this.state.completedMissions,
       unlockedChapters: this.state.unlockedChapters,
       battle
@@ -611,6 +770,9 @@ export class Game {
     }
 
     if (this.currentScene instanceof Arc12Hub) {
+      if (this.input.consumePressed('KeyM')) {
+        this.openFacilityMap();
+      }
       const prompt = this.currentScene.update(dt, this.input, this.state);
       this.cameraController.update(this.currentScene.player, this.input, dt, this.state.settings.mouseSensitivity);
       this.hud.update(this.state, {

@@ -57,12 +57,60 @@ export class BattleScene {
   }
 
   buildEnvironment() {
-    if (this.mission.environment === 'broadcast') {
-      this.buildBroadcastDistrict();
-    } else if (this.mission.environment === 'redline') {
-      this.buildRedlineTunnel();
-    } else {
-      this.buildCityOutskirts();
+    switch (this.mission.environment) {
+      case 'broadcast':
+        this.buildBroadcastDistrict();
+        break;
+      case 'redline':
+        this.buildRedlineTunnel();
+        break;
+      case 'glassed-coast':
+        this.buildGlassedCoast();
+        break;
+      case 'black-orchard':
+        this.buildBlackOrchard();
+        break;
+      case 'silent-choir':
+        this.buildSilentChoir();
+        break;
+      case 'ashfall':
+        this.buildAshfallCradle();
+        break;
+      case 'sealed-lab':
+        this.buildSealedLab();
+        break;
+      case 'sky-rift':
+        this.buildSkyRift();
+        break;
+      case 'veil-core':
+        this.buildVeilCore();
+        break;
+      default:
+        this.buildCityOutskirts();
+        break;
+    }
+  }
+
+  buildBattlefieldBase(color, starCount = 120) {
+    this.root.add(ModelFactory.createFloor(56, 56, color));
+    this.stars = VFXFactory.createStars(starCount, 125);
+    this.stars.position.y = 24;
+    this.root.add(this.stars);
+  }
+
+  addPillars(count, materialKey, radius = 20) {
+    for (let i = 0; i < count; i += 1) {
+      const height = 1.8 + Math.random() * 4;
+      const pillar = new THREE.Mesh(
+        new THREE.BoxGeometry(0.7 + Math.random() * 0.9, height, 0.7 + Math.random() * 0.9),
+        ModelFactory.material(materialKey).clone()
+      );
+      const angle = (i / count) * Math.PI * 2;
+      pillar.position.set(Math.cos(angle) * radius + (Math.random() - 0.5) * 3, height / 2, Math.sin(angle) * radius + (Math.random() - 0.5) * 3);
+      pillar.rotation.y = Math.random() * Math.PI;
+      pillar.castShadow = true;
+      pillar.receiveShadow = true;
+      this.root.add(pillar);
     }
   }
 
@@ -225,6 +273,115 @@ export class BattleScene {
     this.root.add(extraction);
   }
 
+  buildGlassedCoast() {
+    this.buildBattlefieldBase(0x1b2a2b, 150);
+
+    for (let i = 0; i < 16; i += 1) {
+      const shard = new THREE.Mesh(new THREE.OctahedronGeometry(0.55 + Math.random() * 1.1), ModelFactory.material(i % 2 ? 'glass' : 'blue').clone());
+      shard.position.set((Math.random() - 0.5) * 46, 0.65 + Math.random() * 1.7, (Math.random() - 0.5) * 46);
+      shard.scale.y = 1.7 + Math.random();
+      shard.rotation.set(Math.random(), Math.random(), Math.random());
+      this.root.add(shard);
+    }
+
+    const horizon = ModelFactory.createLabel('GLASS HORIZON');
+    horizon.position.set(0, 4, -24);
+    horizon.scale.set(4, 1, 1);
+    this.root.add(horizon);
+  }
+
+  buildBlackOrchard() {
+    this.buildBattlefieldBase(0x191a13, 110);
+    for (let i = 0; i < 22; i += 1) {
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.24, 3 + Math.random() * 3, 7), ModelFactory.material('rail').clone());
+      trunk.position.set((Math.random() - 0.5) * 44, 1.5, (Math.random() - 0.5) * 44);
+      trunk.rotation.z = (Math.random() - 0.5) * 0.45;
+      this.root.add(trunk);
+
+      const crown = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55 + Math.random() * 0.45), ModelFactory.material(i % 2 ? 'amber' : 'red').clone());
+      crown.position.copy(trunk.position).add(new THREE.Vector3(0, 2.2 + Math.random(), 0));
+      this.root.add(crown);
+    }
+    this.addPillars(8, 'amber', 19);
+  }
+
+  buildSilentChoir() {
+    this.buildBattlefieldBase(0x111821, 150);
+    this.addPillars(12, 'blue', 18);
+    for (let i = 0; i < 4; i += 1) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(5 + i * 3, 0.035, 8, 96), ModelFactory.material(i % 2 ? 'violet' : 'blue'));
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.2 + i * 0.08;
+      this.root.add(ring);
+    }
+    const altar = ModelFactory.createLabel('SILENT CHOIR');
+    altar.position.set(0, 4.2, -22);
+    this.root.add(altar);
+  }
+
+  buildAshfallCradle() {
+    this.buildBattlefieldBase(0x231816, 95);
+    for (let i = 0; i < 24; i += 1) {
+      const wreck = ModelFactory.createCrate(0.65 + Math.random() * 1.1);
+      wreck.position.set((Math.random() - 0.5) * 42, 0, (Math.random() - 0.5) * 42);
+      wreck.rotation.set(Math.random() * 0.4, Math.random() * Math.PI, Math.random() * 0.3);
+      this.root.add(wreck);
+    }
+    for (let i = 0; i < 5; i += 1) {
+      const crater = new THREE.Mesh(new THREE.TorusGeometry(3 + i * 1.4, 0.07, 8, 64), ModelFactory.material('red'));
+      crater.rotation.x = Math.PI / 2;
+      crater.position.set((Math.random() - 0.5) * 20, 0.18, (Math.random() - 0.5) * 20);
+      this.root.add(crater);
+    }
+  }
+
+  buildSealedLab() {
+    this.root.add(ModelFactory.createFloor(48, 48, 0x11151a));
+    const gridMat = new THREE.MeshStandardMaterial({ color: 0x222c36, roughness: 0.55, metalness: 0.65 });
+    for (let i = 0; i < 9; i += 1) {
+      const lineA = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 48), gridMat);
+      lineA.position.set(-24 + i * 6, 0.18, 0);
+      const lineB = new THREE.Mesh(new THREE.BoxGeometry(48, 0.08, 0.08), gridMat);
+      lineB.position.set(0, 0.19, -24 + i * 6);
+      this.root.add(lineA, lineB);
+    }
+    this.addPillars(10, 'red', 20);
+    const door = ModelFactory.createLabel('L-0 BLACK ARCHIVE');
+    door.position.set(0, 4.4, -23);
+    door.scale.set(4.2, 1, 1);
+    this.root.add(door);
+  }
+
+  buildSkyRift() {
+    this.buildBattlefieldBase(0x121d2a, 190);
+    for (let i = 0; i < 10; i += 1) {
+      const cloud = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1 + Math.random() * 1.2), ModelFactory.material(i % 2 ? 'glass' : 'blue').clone());
+      cloud.position.set((Math.random() - 0.5) * 48, 4 + Math.random() * 7, (Math.random() - 0.5) * 48);
+      cloud.material.transparent = true;
+      cloud.material.opacity = 0.28;
+      this.root.add(cloud);
+    }
+    const skyhook = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 36, 10), ModelFactory.material('blue'));
+    skyhook.position.set(-18, 8, -18);
+    skyhook.rotation.z = 0.6;
+    this.root.add(skyhook);
+  }
+
+  buildVeilCore() {
+    this.buildBattlefieldBase(0x150f1e, 220);
+    for (let i = 0; i < 5; i += 1) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(5 + i * 3.4, 0.06, 8, 120), ModelFactory.material(i % 2 ? 'violet' : 'red'));
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.22 + i * 0.12;
+      this.root.add(ring);
+    }
+    this.addPillars(14, 'violet', 22);
+    const aperture = ModelFactory.createLabel('REQUIEM HEART');
+    aperture.position.set(0, 5.2, -24);
+    aperture.scale.set(4.5, 1, 1);
+    this.root.add(aperture);
+  }
+
   createBossMesh() {
     const factory = ModelFactory[this.mission.bossFactory] || ModelFactory.createFractureWorm;
     const boss = factory.call(ModelFactory);
@@ -234,6 +391,15 @@ export class BattleScene {
     } else if (this.mission.environment === 'redline') {
       boss.scale.setScalar(1.05);
       boss.position.set(8, 0.1, -10);
+    } else if (this.mission.environment === 'ashfall') {
+      boss.scale.setScalar(0.9);
+      boss.position.set(8, 0.1, -9);
+    } else if (this.mission.environment === 'sky-rift') {
+      boss.scale.setScalar(0.95);
+      boss.position.set(8, 1.7, -9);
+    } else if (this.mission.environment === 'veil-core') {
+      boss.scale.setScalar(1.05);
+      boss.position.set(8, 1.2, -9);
     } else {
       boss.scale.setScalar(0.9);
       boss.position.set(8, 0.6, -8);
@@ -247,7 +413,7 @@ export class BattleScene {
     this.boss.update(dt);
     this.weapons.update(dt, input, this.state);
     this.telegraphs.update(dt, this.aegis, (telegraph) => this.damagePlayer(telegraph.damage));
-    this.battleUI.setDistortion(this.mission.environment === 'broadcast' && Math.sin(this.elapsed * 7) > 0.82);
+    this.battleUI.setDistortion(['broadcast', 'silent-choir', 'veil-core'].includes(this.mission.environment) && Math.sin(this.elapsed * 7) > 0.82);
 
     this.impacts = this.impacts.filter((effect) => {
       const alive = VFXFactory.updateImpact(effect, dt);

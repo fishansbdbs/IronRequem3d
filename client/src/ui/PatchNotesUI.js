@@ -5,8 +5,16 @@ export class PatchNotesUI {
 
   open() {
     this.modal.open({
-      title: 'v0.2.0 - Echoes Beyond Arc-12',
+      title: 'v0.3.0 - Arc-12 Campaign Expansion',
       body: `
+        <ul class="patch-list">
+          <li>Expanded the campaign from Chapter 3 through Chapter 10 with playable operations, briefings, launches, battle environments, bosses, results, and aftermath dialogue.</li>
+          <li>Rebuilt Arc-12 into a walkable facility with a central atrium, command corridor, Nira office, hangar bay, engineering deck, med bay, pilot quarters, Vael sync chamber, research lab, observation deck, and briefing room.</li>
+          <li>Added a facility map opened from the map terminal or the M key.</li>
+          <li>Added Prism Leviathan, Hollow Stag, Cantor Null, Cradle Behemoth, Prototype L-0, Seraphim Veil, and Requiem Heart boss encounters.</li>
+          <li>Added late-campaign upgrades, AP activities, deeper crew choices, ending flags, save migration to schema v3, and final protocol ending options.</li>
+        </ul>
+        <h3>v0.2.0 - Echoes Beyond Arc-12</h3>
         <ul class="patch-list">
           <li>Added Chapter 2: Hollow Signal.</li>
           <li>Added Chapter 3: Redline Descent.</li>

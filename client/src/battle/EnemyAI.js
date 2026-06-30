@@ -29,6 +29,69 @@ const BOSS_CONFIGS = {
     addLimit: 4,
     addType: 'veil-crawler',
     attacks: ['rail-slam', 'tunnel-collapse', 'core-roar', 'charge-downline', 'summon-crawlers']
+  },
+  'prism-leviathan': {
+    hp: 380,
+    hover: 1.1,
+    attackDelay: [2.2, 1.45],
+    phaseAt: 0.48,
+    addLimit: 3,
+    addType: 'rift-shard',
+    attacks: ['prism-beam', 'shatter-rain', 'mirror-clone', 'tidal-sweep', 'reflection-pulse']
+  },
+  'hollow-stag': {
+    hp: 430,
+    hover: 0.65,
+    attackDelay: [2.25, 1.5],
+    phaseAt: 0.5,
+    addLimit: 4,
+    addType: 'rift-shard',
+    attacks: ['antler-charge', 'root-snare', 'thorn-wave', 'wraith-bloom', 'heartbeat-pulse']
+  },
+  'cantor-null': {
+    hp: 460,
+    hover: 1.4,
+    attackDelay: [2.15, 1.38],
+    phaseAt: 0.45,
+    addLimit: 5,
+    addType: 'rift-shard',
+    attacks: ['sonic-ring', 'silence-field', 'resonance-beam', 'choir-summon', 'shatter-note']
+  },
+  'cradle-behemoth': {
+    hp: 560,
+    hover: 0.35,
+    attackDelay: [2.55, 1.65],
+    phaseAt: 0.52,
+    addLimit: 5,
+    addType: 'veil-crawler',
+    attacks: ['ground-quake', 'ashfall', 'core-mortar', 'trample-charge', 'armor-break']
+  },
+  'prototype-l0': {
+    hp: 520,
+    hover: 0.55,
+    attackDelay: [2.05, 1.25],
+    phaseAt: 0.48,
+    addLimit: 2,
+    addType: 'rift-shard',
+    attacks: ['blade-rush', 'rifle-burst', 'sync-overload', 'false-overdrive', 'mirror-aegis']
+  },
+  'seraphim-veil': {
+    hp: 540,
+    hover: 2.2,
+    attackDelay: [2.05, 1.32],
+    phaseAt: 0.46,
+    addLimit: 4,
+    addType: 'rift-shard',
+    attacks: ['feather-lance', 'gravity-well', 'wing-barrage', 'light-dark-zones', 'rift-collapse']
+  },
+  'requiem-heart': {
+    hp: 700,
+    hover: 2.0,
+    attackDelay: [1.95, 1.18],
+    phaseAt: 0.5,
+    addLimit: 6,
+    addType: 'rift-shard',
+    attacks: ['worm-memory', 'colossus-memory', 'prototype-memory', 'seraphim-memory', 'heart-pulse']
   }
 };
 
@@ -187,7 +250,94 @@ export class EnemyAI {
       this.spawnAdd();
       if (this.phase === 2) this.spawnAdd();
       this.attackState = { name: attack, time: 0.8, duration: 0.8, target: playerPos };
+    } else {
+      this.genericAttack(attack, playerPos);
     }
+  }
+
+  genericAttack(attack, playerPos) {
+    if (attack.includes('beam') || attack.includes('lance') || attack.includes('wave') || attack.includes('memory')) {
+      this.lineTelegraph(playerPos, {
+        length: attack.includes('colossus') ? 24 : 18,
+        width: attack.includes('wave') ? 3.4 : 1.35,
+        delay: 0.95,
+        damage: this.phase === 2 ? 18 : 14,
+        radius: attack.includes('wave') ? 3 : 1.7
+      });
+      this.delayedBeam(playerPos, 0.95, attack.includes('prism') || attack.includes('seraphim') ? 'blue' : 'red');
+      this.attackState = { name: attack, time: 0.95, duration: 0.95, target: playerPos };
+      return;
+    }
+
+    if (attack.includes('rain') || attack.includes('ashfall') || attack.includes('barrage') || attack.includes('collapse')) {
+      const count = this.phase === 2 ? 6 : 4;
+      for (let i = 0; i < count; i += 1) {
+        const offset = new THREE.Vector3((Math.random() - 0.5) * 17, 0, (Math.random() - 0.5) * 17);
+        this.circleTelegraph(playerPos.clone().add(offset), {
+          radius: 2 + Math.random() * 0.9,
+          delay: 0.95 + i * 0.1,
+          damage: 11
+        });
+      }
+      this.attackState = { name: attack, time: 1.2, duration: 1.2, target: playerPos };
+      return;
+    }
+
+    if (attack.includes('clone') || attack.includes('mirror')) {
+      this.spawnClones();
+      this.circleTelegraph(this.mesh.position.clone(), { radius: 5.5, delay: 1.05, damage: 10 });
+      this.attackState = { name: attack, time: 1.05, duration: 1.05, target: playerPos };
+      return;
+    }
+
+    if (attack.includes('summon') || attack.includes('bloom')) {
+      this.spawnAdd();
+      this.spawnAdd();
+      if (this.phase === 2) this.spawnAdd();
+      this.attackState = { name: attack, time: 0.8, duration: 0.8, target: playerPos };
+      return;
+    }
+
+    if (attack.includes('mortar') || attack.includes('burst') || attack.includes('note')) {
+      const shots = this.phase === 2 ? 4 : 2;
+      for (let i = 0; i < shots; i += 1) {
+        const offset = new THREE.Vector3((i - shots / 2) * 1.6, 0, i % 2 ? 1.2 : -1.2);
+        this.fireProjectile(playerPos.clone().add(offset), 6.8, 10, 0.32);
+      }
+      this.attackState = { name: attack, time: 0.8, duration: 0.8, target: playerPos };
+      return;
+    }
+
+    if (attack.includes('pulse') || attack.includes('ring') || attack.includes('field') || attack.includes('quake') || attack.includes('overload')) {
+      const radius = attack.includes('heart') ? 10 : 7.5;
+      this.circleTelegraph(this.mesh.position.clone(), {
+        radius,
+        delay: 1.15,
+        damage: this.phase === 2 ? 19 : 15
+      });
+      this.spawnShockwave(radius, attack.includes('seraphim') ? 'blue' : 'red');
+      this.attackState = { name: attack, time: 1.15, duration: 1.15, target: playerPos };
+      return;
+    }
+
+    if (attack.includes('snare') || attack.includes('well') || attack.includes('zones')) {
+      this.circleTelegraph(playerPos, {
+        radius: attack.includes('well') ? 4.2 : 3,
+        delay: 1.05,
+        damage: 14
+      });
+      this.attackState = { name: attack, time: 1.05, duration: 1.05, target: playerPos };
+      return;
+    }
+
+    this.lineTelegraph(playerPos, {
+      length: 18,
+      width: attack.includes('charge') || attack.includes('rush') ? 2.4 : 1.6,
+      delay: 0.95,
+      damage: this.phase === 2 ? 20 : 15,
+      radius: 2.2
+    });
+    this.attackState = { name: attack, time: 0.95, duration: 0.95, target: playerPos.clone().setY(this.config.hover) };
   }
 
   lineTelegraph(playerPos, options) {
@@ -238,7 +388,8 @@ export class EnemyAI {
   spawnClones() {
     this.clearClones();
     for (let i = 0; i < 2; i += 1) {
-      const clone = ModelFactory.createEchoStalker();
+      const factory = ModelFactory[this.mission.bossFactory] || ModelFactory.createEchoStalker;
+      const clone = factory.call(ModelFactory);
       clone.scale.copy(this.mesh.scale).multiplyScalar(0.9);
       clone.position.copy(this.mesh.position).add(new THREE.Vector3(i ? 4 : -4, 0, -2 + i * 4));
       clone.traverse((child) => {

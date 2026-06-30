@@ -19,18 +19,65 @@ export const CHAPTERS = [
     summary:
       'The Hollow Signal leads beneath the battlefield into a collapsed transit city, where Veilborn nests wind through the Redline Tunnel and a train-armored Colossus waits.',
     scenes: ['tense-hub', 'redline-briefing', 'underground-insertion', 'redline-colossus-battle', 'prototype-end']
+  },
+  {
+    id: 'chapter-4-glass-horizon',
+    label: 'Chapter 4 - Glass Horizon',
+    summary:
+      'The war moves to a vitrified shoreline where reflected skylines hide Prism Leviathan and force Kaito to trust the crew over his own eyes.',
+    scenes: ['facility-opened', 'nira-strategy', 'glass-coast-launch', 'prism-leviathan-battle', 'mirror-aftermath']
+  },
+  {
+    id: 'chapter-5-black-orchard',
+    label: 'Chapter 5 - Black Orchard',
+    summary:
+      'A dead agricultural ring blooms into a Veilborn orchard that speaks through memories. Sera and Vael disagree on whether those voices are bait or evidence.',
+    scenes: ['med-bay-check', 'lira-research', 'orchard-briefing', 'hollow-stag-battle', 'spore-aftermath']
+  },
+  {
+    id: 'chapter-6-silent-choir',
+    label: 'Chapter 6 - Silent Choir',
+    summary:
+      'The signal becomes a choir with no singers. Cantor Null steals intention itself, testing whether Kaito can hold a self inside AEGIS-7.',
+    scenes: ['sync-chamber', 'vael-confession', 'choir-launch', 'cantor-null-battle', 'name-anchor']
+  },
+  {
+    id: 'chapter-7-ashfall-cradle',
+    label: 'Chapter 7 - Ashfall Cradle',
+    summary:
+      'Arc-9 debris stirs inside an impact basin. Nira orders focus, Sera names grief, and Kaito faces a Behemoth wearing old survivor tags.',
+    scenes: ['arc9-tags', 'nira-office-choice', 'ashfall-drop', 'cradle-behemoth-battle', 'memorial-return']
+  },
+  {
+    id: 'chapter-8-vaels-door',
+    label: "Chapter 8 - Vael's Door",
+    summary:
+      "A sealed Arc-12 lab opens into Vael's earliest routines and a prototype frame that knows the AI before the crew does.",
+    scenes: ['black-archive-open', 'rook-prototype', 'internal-deployment', 'prototype-l0-battle', 'vael-truth']
+  },
+  {
+    id: 'chapter-9-heaven-static',
+    label: 'Chapter 9 - Heaven Static',
+    summary:
+      'The origin signal climbs into the broken sky. Seraphim Veil guards the route to the aperture while gravity and memory lose their agreements.',
+    scenes: ['observation-deck', 'skyhook-briefing', 'heaven-launch', 'seraphim-veil-battle', 'final-route']
+  },
+  {
+    id: 'chapter-10-iron-requiem',
+    label: 'Chapter 10 - Iron Requiem',
+    summary:
+      'AEGIS-7 enters the Veil Core aperture and fights the Requiem Heart, a composite origin relay that forces Arc-12 into its final protocol.',
+    scenes: ['crew-farewell', 'final-launch', 'requiem-heart-battle', 'ending-choice', 'campaign-epilogue']
   }
 ];
 
 export const FUTURE_REFERENCE_THREADS = [
-  'Void Harbinger',
-  'Storm Colossus',
-  'Mirror Fiend',
-  'Ash Serpent',
-  'Gravity Reaper',
-  'Soul Devourer',
-  'The Architect',
-  'Requiem Lance',
-  'Sen Haraku',
-  'Lira Mave'
+  'Mirror Fiend refraction logic',
+  'Ash Serpent spore memory',
+  'Gravity Reaper field control',
+  'Soul Devourer identity drain',
+  'The Architect origin relay',
+  'Requiem Core route',
+  'Sen Haraku engineering notes',
+  'Dr. Lira Mave xenobiology notes'
 ];

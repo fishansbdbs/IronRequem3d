@@ -31,7 +31,7 @@ export class HUD {
         <div><span>Sync</span><strong>${Math.round(state.sync.value)}%</strong></div>
       </div>
       <div class="hud-prompt ${prompt ? '' : 'hidden'}">${prompt}</div>
-      <div class="controls-hint">${(CONTROLS[mode] || CONTROLS.hub).slice(0, 3).join(' / ')}</div>
+      <div class="controls-hint">${(CONTROLS[mode] || CONTROLS.hub).slice(0, 4).join(' / ')}</div>
     `;
   }
 

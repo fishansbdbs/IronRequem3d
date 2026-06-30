@@ -156,6 +156,7 @@
 .modal-shell {
   position: absolute;
   inset: 0;
+  z-index: 30;
   display: grid;
   place-items: center;
   padding: 22px;
@@ -203,6 +204,7 @@
 
 .dialogue {
   position: absolute;
+  z-index: 24;
   left: 50%;
   bottom: 24px;
   transform: translateX(-50%);
@@ -283,6 +285,48 @@
     repeating-linear-gradient(0deg, rgba(255, 189, 100, 0.08), rgba(255, 189, 100, 0.08) 2px, transparent 2px, transparent 28px);
 }
 
+.holo-map.glassed-coast {
+  background:
+    linear-gradient(135deg, rgba(98, 220, 255, 0.24), transparent 42%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 18px);
+}
+
+.holo-map.black-orchard {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 189, 100, 0.2), transparent 32%),
+    repeating-linear-gradient(90deg, rgba(255, 76, 76, 0.08), rgba(255, 76, 76, 0.08) 2px, transparent 2px, transparent 24px);
+}
+
+.holo-map.silent-choir {
+  background:
+    radial-gradient(circle, transparent 24%, rgba(139, 93, 255, 0.2) 25%, transparent 27%),
+    repeating-radial-gradient(circle, rgba(98, 220, 255, 0.08), rgba(98, 220, 255, 0.08) 1px, transparent 2px, transparent 24px);
+}
+
+.holo-map.ashfall {
+  background:
+    radial-gradient(circle at 40% 55%, rgba(255, 76, 76, 0.22), transparent 28%),
+    repeating-linear-gradient(15deg, rgba(255, 189, 100, 0.08), rgba(255, 189, 100, 0.08) 2px, transparent 2px, transparent 20px);
+}
+
+.holo-map.sealed-lab {
+  background:
+    repeating-linear-gradient(90deg, rgba(98, 220, 255, 0.08), rgba(98, 220, 255, 0.08) 1px, transparent 1px, transparent 22px),
+    repeating-linear-gradient(0deg, rgba(255, 76, 76, 0.08), rgba(255, 76, 76, 0.08) 1px, transparent 1px, transparent 22px);
+}
+
+.holo-map.sky-rift {
+  background:
+    linear-gradient(180deg, rgba(98, 220, 255, 0.22), transparent 58%),
+    repeating-linear-gradient(120deg, rgba(139, 93, 255, 0.1), rgba(139, 93, 255, 0.1) 2px, transparent 2px, transparent 18px);
+}
+
+.holo-map.veil-core {
+  background:
+    radial-gradient(circle, rgba(255, 76, 76, 0.28), transparent 34%),
+    repeating-radial-gradient(circle, rgba(139, 93, 255, 0.12), rgba(139, 93, 255, 0.12) 2px, transparent 3px, transparent 28px);
+}
+
 .rift-pulse {
   width: 82px;
   height: 82px;
@@ -347,6 +391,86 @@
   margin: 8px 0;
 }
 
+.facility-map {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.2fr) minmax(220px, 0.8fr);
+  gap: 16px;
+}
+
+.facility-map-canvas {
+  position: relative;
+  min-height: 360px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(90deg, rgba(98, 220, 255, 0.06), rgba(98, 220, 255, 0.06) 1px, transparent 1px, transparent 18px),
+    repeating-linear-gradient(0deg, rgba(255, 189, 100, 0.05), rgba(255, 189, 100, 0.05) 1px, transparent 1px, transparent 18px),
+    rgba(5, 9, 14, 0.76);
+  overflow: hidden;
+}
+
+.facility-map-room {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 42px;
+  min-height: 28px;
+  border: 1px solid rgba(98, 220, 255, 0.34);
+  border-radius: 6px;
+  padding: 4px;
+  color: var(--muted);
+  background: rgba(17, 28, 39, 0.76);
+  text-align: center;
+}
+
+.facility-map-room strong {
+  font-size: 0.66rem;
+  line-height: 1.1;
+}
+
+.facility-map-room.current {
+  color: var(--text);
+  border-color: var(--amber);
+  background: rgba(106, 72, 27, 0.72);
+  box-shadow: 0 0 24px rgba(255, 189, 100, 0.28);
+}
+
+.facility-map-room.visited:not(.current) {
+  border-color: rgba(119, 240, 162, 0.42);
+}
+
+.facility-map-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facility-map-list li {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.facility-map-list li.current {
+  border-color: var(--amber);
+}
+
+.facility-map-list span {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.facility-map-list small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .smoke-panel {
   position: fixed;
   left: 10px;
@@ -403,6 +527,7 @@
   }
 
   .briefing-grid,
+  .facility-map,
   .upgrade-row,
   .settings-grid label {
     grid-template-columns: 1fr;

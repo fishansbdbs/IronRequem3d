@@ -1,15 +1,98 @@
 import { GAME_VERSION, PHASES, OBJECTIVES } from './constants.js';
 import { BASE_STATS, STARTING_AP, STARTING_SALVAGE } from './balance.js';
 
-export const SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 3;
 
-const CHAPTER_1 = 'chapter-1-iron-wake';
-const CHAPTER_2 = 'chapter-2-hollow-signal';
-const CHAPTER_3 = 'chapter-3-redline-descent';
-const MISSION_BY_CHAPTER = {
-  [CHAPTER_1]: 'operation-iron-wake',
-  [CHAPTER_2]: 'operation-hollow-signal',
-  [CHAPTER_3]: 'operation-redline-descent'
+export const CHAPTER_SEQUENCE = [
+  {
+    id: 'chapter-1-iron-wake',
+    missionId: 'operation-iron-wake',
+    completedFlag: 'firstBattleWon',
+    unlockFlag: 'chapter2Unlocked'
+  },
+  {
+    id: 'chapter-2-hollow-signal',
+    missionId: 'operation-hollow-signal',
+    completedFlag: 'hollowSignalWon',
+    unlockFlag: 'chapter3Unlocked'
+  },
+  {
+    id: 'chapter-3-redline-descent',
+    missionId: 'operation-redline-descent',
+    completedFlag: 'redlineDescentWon',
+    legacyFlag: 'prototypeComplete',
+    unlockFlag: 'chapter4Unlocked'
+  },
+  {
+    id: 'chapter-4-glass-horizon',
+    missionId: 'operation-glass-horizon',
+    completedFlag: 'glassHorizonWon',
+    unlockFlag: 'chapter5Unlocked'
+  },
+  {
+    id: 'chapter-5-black-orchard',
+    missionId: 'operation-black-orchard',
+    completedFlag: 'blackOrchardWon',
+    unlockFlag: 'chapter6Unlocked'
+  },
+  {
+    id: 'chapter-6-silent-choir',
+    missionId: 'operation-silent-choir',
+    completedFlag: 'silentChoirWon',
+    unlockFlag: 'chapter7Unlocked'
+  },
+  {
+    id: 'chapter-7-ashfall-cradle',
+    missionId: 'operation-ashfall-cradle',
+    completedFlag: 'ashfallCradleWon',
+    unlockFlag: 'chapter8Unlocked'
+  },
+  {
+    id: 'chapter-8-vaels-door',
+    missionId: 'operation-vaels-door',
+    completedFlag: 'vaelsDoorWon',
+    unlockFlag: 'chapter9Unlocked'
+  },
+  {
+    id: 'chapter-9-heaven-static',
+    missionId: 'operation-heaven-static',
+    completedFlag: 'heavenStaticWon',
+    unlockFlag: 'chapter10Unlocked'
+  },
+  {
+    id: 'chapter-10-iron-requiem',
+    missionId: 'operation-iron-requiem',
+    completedFlag: 'campaignComplete'
+  }
+];
+
+const CHAPTER_TO_MISSION = Object.fromEntries(CHAPTER_SEQUENCE.map((chapter) => [chapter.id, chapter.missionId]));
+const FACILITY_ROOMS = [
+  'central-atrium',
+  'command-corridor',
+  'nira-office',
+  'hangar-bay',
+  'engineering-deck',
+  'med-bay',
+  'pilot-quarters',
+  'vael-sync-chamber',
+  'research-lab',
+  'observation-deck',
+  'briefing-room'
+];
+
+const ENDING_FLAGS = {
+  trusts_vael: false,
+  questions_vael: false,
+  supports_nira: false,
+  challenges_nira: false,
+  comforts_rook: false,
+  confronts_rook: false,
+  accepts_sera_help: false,
+  hides_stress: false,
+  aggressive_pilot: false,
+  protective_pilot: false,
+  reckless_sync: false
 };
 
 function unique(values) {
@@ -20,39 +103,53 @@ function asArray(value) {
   return Array.isArray(value) ? [...value] : [];
 }
 
+function chapterIndex(chapterId) {
+  return CHAPTER_SEQUENCE.findIndex((chapter) => chapter.id === chapterId);
+}
+
 function deriveProgress(candidate, storyFlags) {
-  const completedMissions = asArray(candidate.completedMissions);
+  const completedMissions = unique(asArray(candidate.completedMissions));
   const unlockedChapters = asArray(candidate.unlockedChapters).length
     ? asArray(candidate.unlockedChapters)
-    : [CHAPTER_1];
+    : [CHAPTER_SEQUENCE[0].id];
   const completedChapters = asArray(candidate.completedChapters);
-  let currentChapter = candidate.currentChapter || CHAPTER_1;
+  let currentIndex = Math.max(0, chapterIndex(candidate.currentChapter || CHAPTER_SEQUENCE[0].id));
 
-  if (completedMissions.includes('operation-iron-wake') || storyFlags.firstBattleWon) {
-    completedChapters.push(CHAPTER_1);
-    unlockedChapters.push(CHAPTER_2);
-    if (currentChapter === CHAPTER_1) currentChapter = CHAPTER_2;
-    storyFlags.chapter2Unlocked = true;
-  }
+  CHAPTER_SEQUENCE.forEach((chapter, index) => {
+    const completed =
+      completedMissions.includes(chapter.missionId) ||
+      Boolean(storyFlags[chapter.completedFlag]) ||
+      Boolean(chapter.legacyFlag && storyFlags[chapter.legacyFlag]);
 
-  if (completedMissions.includes('operation-hollow-signal')) {
-    completedChapters.push(CHAPTER_2);
-    unlockedChapters.push(CHAPTER_3);
-    currentChapter = CHAPTER_3;
-    storyFlags.chapter3Unlocked = true;
-  }
+    if (!completed) return;
 
-  if (completedMissions.includes('operation-redline-descent')) {
-    completedChapters.push(CHAPTER_3);
-    unlockedChapters.push(CHAPTER_3);
-    currentChapter = CHAPTER_3;
-    storyFlags.prototypeComplete = true;
-  }
+    completedChapters.push(chapter.id);
+    storyFlags[chapter.completedFlag] = true;
+
+    if (chapter.legacyFlag) {
+      storyFlags[chapter.legacyFlag] = true;
+    }
+
+    const nextChapter = CHAPTER_SEQUENCE[index + 1];
+    if (nextChapter) {
+      unlockedChapters.push(nextChapter.id);
+      storyFlags[chapter.unlockFlag] = true;
+      currentIndex = Math.max(currentIndex, index + 1);
+    } else {
+      currentIndex = Math.max(currentIndex, index);
+      storyFlags.campaignComplete = true;
+    }
+  });
+
+  const currentChapter = CHAPTER_SEQUENCE[Math.min(currentIndex, CHAPTER_SEQUENCE.length - 1)].id;
+  unlockedChapters.push(currentChapter);
 
   return {
     currentChapter,
+    activeMissionId: CHAPTER_TO_MISSION[currentChapter],
     unlockedChapters: unique(unlockedChapters),
-    completedChapters: unique(completedChapters)
+    completedChapters: unique(completedChapters),
+    completedMissions
   };
 }
 
@@ -61,8 +158,8 @@ export function createSaveTemplate() {
     schemaVersion: SAVE_SCHEMA_VERSION,
     version: GAME_VERSION,
     currentPhase: PHASES.MENU,
-    currentChapter: 'chapter-1-iron-wake',
-    activeMissionId: 'operation-iron-wake',
+    currentChapter: CHAPTER_SEQUENCE[0].id,
+    activeMissionId: CHAPTER_SEQUENCE[0].missionId,
     day: 1,
     ap: {
       current: STARTING_AP,
@@ -84,7 +181,7 @@ export function createSaveTemplate() {
     },
     completedMissions: [],
     completedChapters: [],
-    unlockedChapters: ['chapter-1-iron-wake'],
+    unlockedChapters: [CHAPTER_SEQUENCE[0].id],
     dialogueChoices: {},
     toneRecord: {
       tactical: 0,
@@ -95,6 +192,14 @@ export function createSaveTemplate() {
     },
     missionResultsHistory: [],
     enemyDefeats: {},
+    facility: {
+      currentRoom: 'central-atrium',
+      unlockedRooms: [...FACILITY_ROOMS],
+      visitedRooms: ['central-atrium']
+    },
+    endingFlags: { ...ENDING_FLAGS },
+    endingUnlocked: null,
+    endingOptions: [],
     launchSequenceWatched: false,
     objective: OBJECTIVES.TALK_NIRA,
     storyFlags: {
@@ -103,8 +208,24 @@ export function createSaveTemplate() {
       briefingComplete: false,
       firstBattleWon: false,
       chapter2Unlocked: false,
+      hollowSignalWon: false,
       chapter3Unlocked: false,
+      redlineDescentWon: false,
       prototypeComplete: false,
+      chapter4Unlocked: false,
+      glassHorizonWon: false,
+      chapter5Unlocked: false,
+      blackOrchardWon: false,
+      chapter6Unlocked: false,
+      silentChoirWon: false,
+      chapter7Unlocked: false,
+      ashfallCradleWon: false,
+      chapter8Unlocked: false,
+      vaelsDoorWon: false,
+      chapter9Unlocked: false,
+      heavenStaticWon: false,
+      chapter10Unlocked: false,
+      campaignComplete: false,
       challengedNiraConcern: false,
       vaelActedWithoutOrder: false,
       rookRecoveredTechHint: false,
@@ -131,6 +252,7 @@ export function normalizeSave(candidate) {
 
   const storyFlags = { ...fallback.storyFlags, ...(candidate.storyFlags || {}) };
   const progress = deriveProgress(candidate, storyFlags);
+  const candidateFacility = candidate.facility || {};
 
   return {
     ...fallback,
@@ -144,14 +266,24 @@ export function normalizeSave(candidate) {
     sync: { ...fallback.sync, ...(candidate.sync || {}) },
     storyFlags,
     settings: { ...fallback.settings, ...(candidate.settings || {}) },
-    completedMissions: asArray(candidate.completedMissions),
+    completedMissions: progress.completedMissions,
     completedChapters: progress.completedChapters,
     unlockedChapters: progress.unlockedChapters,
     currentChapter: progress.currentChapter,
-    activeMissionId: candidate.activeMissionId || MISSION_BY_CHAPTER[progress.currentChapter] || fallback.activeMissionId,
+    activeMissionId: progress.activeMissionId || candidate.activeMissionId || fallback.activeMissionId,
     dialogueChoices: { ...fallback.dialogueChoices, ...(candidate.dialogueChoices || {}) },
     toneRecord: { ...fallback.toneRecord, ...(candidate.toneRecord || {}) },
     missionResultsHistory: asArray(candidate.missionResultsHistory),
-    enemyDefeats: { ...fallback.enemyDefeats, ...(candidate.enemyDefeats || {}) }
+    enemyDefeats: { ...fallback.enemyDefeats, ...(candidate.enemyDefeats || {}) },
+    facility: {
+      ...fallback.facility,
+      ...candidateFacility,
+      currentRoom: candidateFacility.currentRoom || fallback.facility.currentRoom,
+      unlockedRooms: unique([...fallback.facility.unlockedRooms, ...asArray(candidateFacility.unlockedRooms)]),
+      visitedRooms: unique(asArray(candidateFacility.visitedRooms).length ? candidateFacility.visitedRooms : fallback.facility.visitedRooms)
+    },
+    endingFlags: { ...fallback.endingFlags, ...(candidate.endingFlags || {}) },
+    endingUnlocked: candidate.endingUnlocked || fallback.endingUnlocked,
+    endingOptions: unique(asArray(candidate.endingOptions))
   };
 }

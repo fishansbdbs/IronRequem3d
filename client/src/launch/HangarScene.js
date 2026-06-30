@@ -77,13 +77,42 @@ export class HangarScene {
         this.root.add(lamp);
       }
     }
+
+    if (this.mission.environment === 'glassed-coast') {
+      this.addMissionProp('glass', -5, -7, 'blue', 6);
+    } else if (this.mission.environment === 'black-orchard') {
+      this.addMissionProp('orchard', -5, -7, 'amber', 7);
+    } else if (this.mission.environment === 'silent-choir') {
+      this.addMissionProp('choir', -5, -7, 'violet', 5);
+    } else if (this.mission.environment === 'ashfall') {
+      this.addMissionProp('ash', -5, -7, 'red', 8);
+    } else if (this.mission.environment === 'sealed-lab') {
+      this.addMissionProp('lab', -5, -7, 'red', 5);
+    } else if (this.mission.environment === 'sky-rift') {
+      this.addMissionProp('skyhook', -5, -7, 'blue', 7);
+    } else if (this.mission.environment === 'veil-core') {
+      this.addMissionProp('requiem', -5, -7, 'violet', 9);
+    }
+  }
+
+  addMissionProp(prefix, x, z, materialKey, count) {
+    for (let i = 0; i < count; i += 1) {
+      const prop = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.25 + (i % 3) * 0.12),
+        ModelFactory.material(materialKey).clone()
+      );
+      prop.name = `${prefix}-launch-prop-${i}`;
+      prop.position.set(x + i * 1.55, 1.1 + Math.sin(i) * 0.35, z + Math.cos(i) * 0.55);
+      prop.rotation.set(i * 0.2, i * 0.45, 0);
+      this.root.add(prop);
+    }
   }
 
   update(dt) {
     this.clock += dt;
     this.aegis.position.y = 0.2 + Math.sin(this.clock * 1.8) * 0.04;
     this.aegis.getObjectByName('core').material.emissiveIntensity = 1.5 + Math.sin(this.clock * 5) * 0.4;
-    if (this.mission.environment === 'broadcast') {
+    if (['broadcast', 'glassed-coast', 'silent-choir', 'sky-rift', 'veil-core'].includes(this.mission.environment)) {
       this.stars.rotation.z += dt * 0.12;
     }
   }
