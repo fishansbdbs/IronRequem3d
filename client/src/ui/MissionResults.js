@@ -8,6 +8,7 @@ export class MissionResults {
       title: 'Victory',
       subtitle: `${results.missionName || 'Mission'} complete`,
       body: `
+        ${results.resultText ? `<p class="reward">${results.resultText}</p>` : ''}
         <div class="results-grid">
           <div><span>Mission</span><strong>${results.missionName || 'Unknown'}</strong></div>
           <div><span>Boss Defeated</span><strong>${results.bossDefeated || 'Target'}</strong></div>

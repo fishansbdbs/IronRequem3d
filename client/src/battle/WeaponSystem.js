@@ -10,9 +10,11 @@ export class WeaponSystem {
     this.audio = audio;
     this.onDamage = onDamage;
     this.effects = [];
+    this.silenceTimer = 0;
   }
 
   update(dt, input, state) {
+    this.silenceTimer = Math.max(0, this.silenceTimer - dt);
     if (input.consumeMouse(0)) this.melee(state);
     if (input.consumeMouse(2)) this.rifle(state);
     if (input.consumePressed('KeyQ')) this.overdrive(state);
@@ -45,20 +47,25 @@ export class WeaponSystem {
   }
 
   rifle(state) {
-    if (this.mecha.cooldowns.rifle > 0 || this.mecha.stats.energy < BATTLE_BALANCE.rifleEnergyCost) return;
+    if (this.silenceTimer > 0 || this.mecha.cooldowns.rifle > 0 || this.mecha.stats.energy < BATTLE_BALANCE.rifleEnergyCost) return;
     this.mecha.cooldowns.rifle = BATTLE_BALANCE.rifleCooldown;
     this.mecha.stats.energy -= BATTLE_BALANCE.rifleEnergyCost;
     this.mecha.startRifleAnimation();
     const distance = this.mecha.mesh.position.distanceTo(this.boss.mesh.position);
+    const origin = this.mecha.mesh.position.clone().add(new THREE.Vector3(0, 2.35, 0));
+    const target = this.boss.mesh.position.clone().add(new THREE.Vector3(0, 1.5, 0));
+    const direction = target.clone().sub(origin).normalize();
+    const flash = VFXFactory.createMuzzleFlash('blue');
+    flash.position.copy(origin);
+    flash.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), direction);
+    this.scene.add(flash);
+    this.effects.push(flash);
     const impact = VFXFactory.createImpact('blue');
     impact.position.copy(this.boss.mesh.position);
     impact.position.y += 1.2;
     this.scene.add(impact);
     this.effects.push(impact);
     const beam = VFXFactory.createEnergyBeam(Math.max(2, distance), 'blue');
-    const origin = this.mecha.mesh.position.clone().add(new THREE.Vector3(0, 2.35, 0));
-    const target = this.boss.mesh.position.clone().add(new THREE.Vector3(0, 1.5, 0));
-    const direction = target.clone().sub(origin).normalize();
     beam.position.copy(origin.clone().lerp(target, 0.5));
     beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
     this.scene.add(beam);
@@ -92,6 +99,10 @@ export class WeaponSystem {
     this.boss.damage(amount);
     this.audio.hit();
     this.onDamage(amount, label, this.boss.mesh.position);
+  }
+
+  applySilence(duration = 2) {
+    this.silenceTimer = Math.max(this.silenceTimer, duration);
   }
 
   dashFlare() {

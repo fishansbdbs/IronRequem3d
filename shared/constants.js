@@ -1,6 +1,6 @@
 export const GAME_TITLE = 'IRON REQUIEM 3D REMASTER';
-export const GAME_VERSION = '0.3.0';
-export const PROTOTYPE_NAME = 'Arc-12 Campaign Expansion';
+export const GAME_VERSION = '0.3.1';
+export const PROTOTYPE_NAME = 'Boss Identity & Campaign Polish';
 
 export const SERVER_HEALTH = {
   ok: true,

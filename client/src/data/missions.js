@@ -334,6 +334,84 @@ export const MISSIONS = {
   }
 };
 
+const LATE_CAMPAIGN_POLISH = {
+  glassHorizon: {
+    resultText:
+      'The Prism Leviathan breaks into harmless refraction dust. Arc-12 recovers glass samples, a false shoreline map, and one clean route back through the mirror flats.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'Leviathan contact. Do not trust the horizon until Vael confirms the shadow.' },
+      phase: { speaker: 'Vael', text: 'Its mirror plates are splitting. Beams will cross before they strike.' },
+      lowHull: { speaker: 'Sera', text: 'Your visual stress is spiking with the damage. Pick one reflection and breathe.' },
+      victory: { speaker: 'Rook', text: 'Glass readings are stable. Also everywhere. I am calling that a win.' }
+    }
+  },
+  blackOrchard: {
+    resultText:
+      'The Hollow Stag collapses into black roots and a red heart-core trace. The orchard quiets long enough for Arc-12 to pull Lira Mave data from the dead growth.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'The Stag is herding you toward root clusters. Break line and punish the charge.' },
+      phase: { speaker: 'Vael', text: 'Heart-core exposed. Antlers are amplifying the snare rhythm now.' },
+      lowHull: { speaker: 'Sera', text: 'Kaito, the memory bleed is using pain as an anchor. Stay with my voice.' },
+      victory: { speaker: 'Rook', text: 'Rootbreaker telemetry recovered. I would like never to tune a tree again.' }
+    }
+  },
+  silentChoir: {
+    resultText:
+      'Cantor Null falls silent, taking its speaker halo and stolen intent with it. Arc-12 logs a clean relay gap and Vael keeps answering when spoken to.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'Cantor Null is suppressing intent. If your rifle locks out, switch to movement.' },
+      phase: { speaker: 'Vael', text: 'Speaker towers are awake. Rings will come from more than the body.' },
+      lowHull: { speaker: 'Sera', text: 'Say your name if the silence presses in. Kaito Ashveil. Again.' },
+      victory: { speaker: 'Rook', text: 'Choir pylons are dead. The rifle core has stopped humming at me.' }
+    }
+  },
+  ashfallCradle: {
+    resultText:
+      'The Cradle Behemoth sinks back into the impact basin after shedding its Arc-9 armor. The recovered tags return to Arc-12 with names attached.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'Heavy target. Its armor will blunt early hits; wait for the quake openings.' },
+      phase: { speaker: 'Vael', text: 'Armor shell broken. Its mass is moving faster without the plates.' },
+      lowHull: { speaker: 'Sera', text: 'You are fighting wreckage and grief at once. Do only the next dodge.' },
+      victory: { speaker: 'Rook', text: 'Arc-9 tag bundle secured. I will handle the cleaning. You handled the impossible part.' }
+    }
+  },
+  vaelsDoor: {
+    resultText:
+      'Prototype L-0 shuts down with Vael prints still burning in its corrupted core. Arc-12 gains a warning: the old AEGIS line learned to imitate survival.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'Prototype L-0 is a mirror match. Do not let it set your tempo.' },
+      phase: { speaker: 'Vael', text: 'It changed stance. Melee routines first, rifle counters second.' },
+      lowHull: { speaker: 'Sera', text: 'Your sync is reacting like it knows that frame. Slow down, Kaito.' },
+      victory: { speaker: 'Rook', text: 'L-0 is offline. I am saving the parts that did not try to become us.' }
+    }
+  },
+  heavenStatic: {
+    resultText:
+      'Seraphim Veil tears apart above the skyhook and gravity settles into something Arc-12 can read. The route to the origin aperture is open.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'Use the gravity anchors. The sky is hostile terrain, not scenery.' },
+      phase: { speaker: 'Vael', text: 'Halo geometry changed. Safe zones will shift before the collapse.' },
+      lowHull: { speaker: 'Sera', text: 'Your body thinks it is falling. Plant your attention inside the cockpit.' },
+      victory: { speaker: 'Rook', text: 'Skyhook path is clear. I did not enjoy the wing math, but I respect it.' }
+    }
+  },
+  ironRequiem: {
+    resultText:
+      'The Requiem Heart opens and every memory pattern falls away: Worm, Signal, Prototype, and the exposed core. Arc-12 waits for Kaito to choose its future.',
+    calloutEvents: {
+      start: { speaker: 'Nira', text: 'Final target. Every warning matters. Every opening is earned.' },
+      phase: { speaker: 'Vael', text: 'The Heart is changing memory sets. I can name the pattern before it strikes.' },
+      lowHull: { speaker: 'Sera', text: 'Kaito, hold your people. Hold your name. Then use Overdrive when the core opens.' },
+      victory: { speaker: 'Rook', text: 'The Heart is exposed. Arc-12 still has lights. That means we choose.' }
+    },
+    finaleOptions: ['sever-the-choir', 'vael-open-door', 'hold-arc12']
+  }
+};
+
+Object.entries(LATE_CAMPAIGN_POLISH).forEach(([missionKey, polish]) => {
+  Object.assign(MISSIONS[missionKey], polish);
+});
+
 export const MISSION_BY_CHAPTER = Object.fromEntries(
   Object.values(MISSIONS).map((mission) => [mission.chapterId, mission])
 );

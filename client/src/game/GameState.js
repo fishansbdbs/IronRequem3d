@@ -101,11 +101,7 @@ function pushUnique(list, value) {
 }
 
 function deriveEndingOptions(state) {
-  const options = ['hold-arc12', 'sever-the-choir'];
-
-  if (state.endingFlags.trusts_vael || state.bonds.vael >= 3) {
-    options.push('vael-open-door');
-  }
+  const options = ['hold-arc12', 'sever-the-choir', 'vael-open-door'];
 
   if (state.endingFlags.protective_pilot || state.bonds.nira + state.bonds.sera >= 5) {
     options.push('evacuate-and-return');

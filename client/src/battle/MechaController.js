@@ -37,6 +37,11 @@ export class MechaController {
     };
     this.velocity = new THREE.Vector3();
     this.dashEffectQueued = false;
+    this.status = {
+      slowTimer: 0,
+      slowMultiplier: 1,
+      hitFlash: 0
+    };
   }
 
   update(dt, input, cameraController) {
@@ -46,6 +51,9 @@ export class MechaController {
     Object.keys(this.animations).forEach((key) => {
       this.animations[key] = Math.max(0, this.animations[key] - dt);
     });
+    this.status.slowTimer = Math.max(0, this.status.slowTimer - dt);
+    if (this.status.slowTimer <= 0) this.status.slowMultiplier = 1;
+    this.status.hitFlash = Math.max(0, this.status.hitFlash - dt);
     this.stats.energy = Math.min(this.stats.maxEnergy, this.stats.energy + dt * 7);
     this.stats.sync = Math.min(this.stats.maxSync, this.stats.sync + dt * (1.6 + this.stats.syncRate * 0.12));
 
@@ -54,7 +62,8 @@ export class MechaController {
     const direction = forward.multiplyScalar(-move.z).add(right.multiplyScalar(move.x));
     if (direction.lengthSq() > 0.001) {
       direction.normalize();
-      const speed = input.isDown('ShiftLeft') ? 8 : 6;
+      const baseSpeed = input.isDown('ShiftLeft') ? 8 : 6;
+      const speed = baseSpeed * this.status.slowMultiplier;
       this.velocity.lerp(direction.multiplyScalar(speed), Math.min(1, dt * 10));
       this.mesh.rotation.y = Math.atan2(this.velocity.x, this.velocity.z);
     } else {
@@ -76,6 +85,12 @@ export class MechaController {
 
   damage(amount) {
     this.stats.hull = Math.max(0, this.stats.hull - amount);
+    this.status.hitFlash = 0.18;
+  }
+
+  applySlow(duration = 1.6, multiplier = 0.55) {
+    this.status.slowTimer = Math.max(this.status.slowTimer, duration);
+    this.status.slowMultiplier = Math.min(this.status.slowMultiplier, multiplier);
   }
 
   gainSync(amount) {
@@ -145,7 +160,8 @@ export class MechaController {
 
     if (core) {
       const overdriveGlow = this.animations.overdrive > 0 ? 2.8 + Math.sin(overdriveProgress * Math.PI * 4) : 1.6;
-      core.material.emissiveIntensity = THREE.MathUtils.lerp(core.material.emissiveIntensity, overdriveGlow, 0.25);
+      const hitGlow = this.status.hitFlash > 0 ? 3.8 : overdriveGlow;
+      core.material.emissiveIntensity = THREE.MathUtils.lerp(core.material.emissiveIntensity, hitGlow, 0.25);
     }
 
     if (this.animations.dash > 0) {

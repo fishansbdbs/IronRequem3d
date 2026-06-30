@@ -1,12 +1,12 @@
 # IRON REQUIEM 3D REMASTER
 
-`v0.3.0 - Arc-12 Campaign Expansion` expands the clean 3D remaster into a playable ten-chapter Arc-12 campaign. It remains a Vite and Three.js browser game with the existing Express and Socket.IO server scaffold.
+`v0.3.1 - Boss Identity & Campaign Polish` expands the clean 3D remaster's late campaign with stronger Chapter 4-10 boss identities, event callouts, readable telegraphs, and final choice copy. It remains a Vite and Three.js browser game with the existing Express and Socket.IO server scaffold.
 
 The old Iron Requiem ZIP was inspected only for story, terminology, tone, characters, chapter concepts, upgrades, and battle ideas. The bundled old HTML was not edited or copied.
 
 ## What Is Included
 
-- Main menu showing `IRON REQUIEM 3D REMASTER`, `Arc-12 Campaign Expansion`, and `v0.3.0`.
+- Main menu showing `IRON REQUIEM 3D REMASTER`, `Boss Identity & Campaign Polish`, and `v0.3.1`.
 - A walkable Arc-12 facility with central atrium, command corridor, Commander Nira's room, hangar bay, engineering deck, med bay, pilot quarters, Vael sync chamber, research lab, observation deck, and briefing room.
 - Facility map opened from the central map terminal or the `M` key.
 - Commander Nira, Vael, Engineer Rook, and Medic Sera interactions with chapter-specific dialogue and choices.
@@ -135,5 +135,5 @@ Render:
 
 - The game uses procedural geometry instead of authored GLB character and environment models.
 - Physics are lightweight distance checks rather than a full rigid-body simulation.
-- Chapters 7-10 are fully playable but use more compact encounter logic than a bespoke boss engine would.
+- Boss encounters still use procedural geometry and lightweight collision, but Chapter 4-10 now have bespoke attack sets, telegraph palettes, event callouts, phase behavior, and result copy.
 - Mobile layout is responsive, but controls remain desktop-first.

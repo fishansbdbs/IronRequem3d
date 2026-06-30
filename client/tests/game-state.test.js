@@ -11,7 +11,7 @@ import {
 test('initial state starts chapter one with AP, zero salvage, and Arc-12 objective', () => {
   const state = createInitialState();
 
-  assert.equal(state.version, '0.3.0');
+  assert.equal(state.version, '0.3.1');
   assert.equal(state.day, 1);
   assert.equal(state.ap.current, 3);
   assert.equal(state.salvage, 0);
@@ -120,6 +120,7 @@ test('full campaign progression unlocks chapter ten ending state', () => {
   assert.ok(finalState.completedChapters.includes('chapter-10-iron-requiem'));
   assert.ok(finalState.endingOptions.includes('hold-arc12'));
   assert.ok(finalState.endingOptions.includes('sever-the-choir'));
+  assert.ok(finalState.endingOptions.includes('vael-open-door'));
 });
 
 test('late-campaign upgrades stay locked until their chapter is available', () => {

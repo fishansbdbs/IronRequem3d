@@ -22,6 +22,8 @@ export class BattleScene {
     this.shardsDefeated = 0;
     this.victoryTimer = null;
     this.impacts = [];
+    this.glitchTimer = 0;
+    this.lowHullCalloutPlayed = false;
     this.build();
     scene.add(this.root);
   }
@@ -44,7 +46,9 @@ export class BattleScene {
       telegraphs: this.telegraphs,
       player: this.aegis,
       onProjectileHit: (amount) => this.damagePlayer(amount),
-      onCallout: () => this.queueCallout()
+      onCallout: () => this.queueCallout(),
+      onPhaseChange: () => this.queueEventCallout('phase', true),
+      onBossEffect: (effect) => this.handleBossEffect(effect)
     });
 
     this.weapons = new WeaponSystem({
@@ -54,6 +58,7 @@ export class BattleScene {
       audio: this.audio,
       onDamage: (amount, label, position) => this.recordDamage(amount, label, position)
     });
+    this.queueEventCallout('start', true);
   }
 
   buildEnvironment() {
@@ -276,12 +281,27 @@ export class BattleScene {
   buildGlassedCoast() {
     this.buildBattlefieldBase(0x1b2a2b, 150);
 
+    const tide = new THREE.Mesh(
+      new THREE.PlaneGeometry(44, 18),
+      new THREE.MeshStandardMaterial({ color: 0x173842, transparent: true, opacity: 0.36, roughness: 0.12, metalness: 0.2 })
+    );
+    tide.rotation.x = -Math.PI / 2;
+    tide.position.set(0, 0.17, 15);
+    this.root.add(tide);
+
     for (let i = 0; i < 16; i += 1) {
       const shard = new THREE.Mesh(new THREE.OctahedronGeometry(0.55 + Math.random() * 1.1), ModelFactory.material(i % 2 ? 'glass' : 'blue').clone());
       shard.position.set((Math.random() - 0.5) * 46, 0.65 + Math.random() * 1.7, (Math.random() - 0.5) * 46);
       shard.scale.y = 1.7 + Math.random();
       shard.rotation.set(Math.random(), Math.random(), Math.random());
       this.root.add(shard);
+    }
+
+    for (let i = 0; i < 5; i += 1) {
+      const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.16, 3.2, 1.7), ModelFactory.material('glass').clone());
+      mirror.position.set(-18 + i * 9, 1.7, -17 + Math.sin(i) * 2);
+      mirror.rotation.y = -0.45 + i * 0.22;
+      this.root.add(mirror);
     }
 
     const horizon = ModelFactory.createLabel('GLASS HORIZON');
@@ -292,6 +312,12 @@ export class BattleScene {
 
   buildBlackOrchard() {
     this.buildBattlefieldBase(0x191a13, 110);
+    for (let i = 0; i < 9; i += 1) {
+      const vein = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 7 + Math.random() * 4), ModelFactory.material(i % 2 ? 'red' : 'amber').clone());
+      vein.position.set((Math.random() - 0.5) * 34, 0.2, (Math.random() - 0.5) * 34);
+      vein.rotation.y = Math.random() * Math.PI;
+      this.root.add(vein);
+    }
     for (let i = 0; i < 22; i += 1) {
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.24, 3 + Math.random() * 3, 7), ModelFactory.material('rail').clone());
       trunk.position.set((Math.random() - 0.5) * 44, 1.5, (Math.random() - 0.5) * 44);
@@ -308,6 +334,18 @@ export class BattleScene {
   buildSilentChoir() {
     this.buildBattlefieldBase(0x111821, 150);
     this.addPillars(12, 'blue', 18);
+    for (let i = 0; i < 4; i += 1) {
+      const tower = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.46, 4.2, 12), ModelFactory.material('black').clone());
+      body.position.y = 2.1;
+      const dish = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.05, 8, 42), ModelFactory.material(i % 2 ? 'violet' : 'blue').clone());
+      dish.position.y = 4.15;
+      dish.rotation.x = Math.PI / 2;
+      tower.add(body, dish);
+      const angle = (i / 4) * Math.PI * 2;
+      tower.position.set(Math.cos(angle) * 15, 0, Math.sin(angle) * 15);
+      this.root.add(tower);
+    }
     for (let i = 0; i < 4; i += 1) {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(5 + i * 3, 0.035, 8, 96), ModelFactory.material(i % 2 ? 'violet' : 'blue'));
       ring.rotation.x = Math.PI / 2;
@@ -333,6 +371,12 @@ export class BattleScene {
       crater.position.set((Math.random() - 0.5) * 20, 0.18, (Math.random() - 0.5) * 20);
       this.root.add(crater);
     }
+    for (let i = 0; i < 6; i += 1) {
+      const vent = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.36, 1.1, 9), ModelFactory.material(i % 2 ? 'red' : 'amber').clone());
+      vent.position.set((Math.random() - 0.5) * 38, 0.55, (Math.random() - 0.5) * 38);
+      vent.rotation.z = (Math.random() - 0.5) * 0.45;
+      this.root.add(vent);
+    }
   }
 
   buildSealedLab() {
@@ -346,6 +390,16 @@ export class BattleScene {
       this.root.add(lineA, lineB);
     }
     this.addPillars(10, 'red', 20);
+    for (let i = 0; i < 4; i += 1) {
+      const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 2.4, 16), ModelFactory.material(i % 2 ? 'blue' : 'red').clone());
+      pod.position.set(-15 + i * 10, 1.2, 14);
+      pod.rotation.z = Math.PI / 2;
+      this.root.add(pod);
+      const cable = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.035, 8, 36), ModelFactory.material('rail').clone());
+      cable.position.set(pod.position.x, 0.28, 10.8);
+      cable.rotation.x = Math.PI / 2;
+      this.root.add(cable);
+    }
     const door = ModelFactory.createLabel('L-0 BLACK ARCHIVE');
     door.position.set(0, 4.4, -23);
     door.scale.set(4.2, 1, 1);
@@ -365,6 +419,12 @@ export class BattleScene {
     skyhook.position.set(-18, 8, -18);
     skyhook.rotation.z = 0.6;
     this.root.add(skyhook);
+    for (let i = 0; i < 7; i += 1) {
+      const shard = new THREE.Mesh(new THREE.OctahedronGeometry(0.55 + Math.random() * 0.55), ModelFactory.material(i % 2 ? 'violet' : 'glass').clone());
+      shard.position.set((Math.random() - 0.5) * 42, 2.4 + Math.random() * 5, (Math.random() - 0.5) * 42);
+      shard.rotation.set(Math.random(), Math.random(), Math.random());
+      this.root.add(shard);
+    }
   }
 
   buildVeilCore() {
@@ -376,6 +436,13 @@ export class BattleScene {
       this.root.add(ring);
     }
     this.addPillars(14, 'violet', 22);
+    ['WORM MEMORY', 'SIGNAL MEMORY', 'L-0 MEMORY', 'SERAPH MEMORY'].forEach((label, index) => {
+      const fragment = ModelFactory.createLabel(label);
+      const angle = (index / 4) * Math.PI * 2;
+      fragment.position.set(Math.cos(angle) * 18, 3.6 + index * 0.25, Math.sin(angle) * 18);
+      fragment.scale.set(2.2, 0.62, 1);
+      this.root.add(fragment);
+    });
     const aperture = ModelFactory.createLabel('REQUIEM HEART');
     aperture.position.set(0, 5.2, -24);
     aperture.scale.set(4.5, 1, 1);
@@ -412,8 +479,12 @@ export class BattleScene {
     this.mecha.update(dt, input, this.cameraController);
     this.boss.update(dt);
     this.weapons.update(dt, input, this.state);
-    this.telegraphs.update(dt, this.aegis, (telegraph) => this.damagePlayer(telegraph.damage));
-    this.battleUI.setDistortion(['broadcast', 'silent-choir', 'veil-core'].includes(this.mission.environment) && Math.sin(this.elapsed * 7) > 0.82);
+    this.telegraphs.update(dt, this.aegis, (telegraph) => this.handleTelegraphTrigger(telegraph));
+    this.glitchTimer = Math.max(0, this.glitchTimer - dt);
+    this.battleUI.setDistortion(
+      this.glitchTimer > 0 ||
+      (['broadcast', 'silent-choir', 'veil-core'].includes(this.mission.environment) && Math.sin(this.elapsed * 7) > 0.82)
+    );
 
     this.impacts = this.impacts.filter((effect) => {
       const alive = VFXFactory.updateImpact(effect, dt);
@@ -430,7 +501,13 @@ export class BattleScene {
     if (this.boss.hp <= 0 && !this.victoryTimer) {
       this.telegraphs.clear();
       this.boss.clearAdds();
+      this.queueEventCallout('victory', true);
       this.victoryTimer = 1.8;
+    }
+
+    if (!this.lowHullCalloutPlayed && this.mecha.stats.hull / this.mecha.stats.maxHull <= 0.32) {
+      this.lowHullCalloutPlayed = true;
+      this.queueEventCallout('lowHull', true);
     }
 
     if (this.victoryTimer !== null) {
@@ -452,10 +529,29 @@ export class BattleScene {
   }
 
   damagePlayer(amount) {
+    if (amount <= 0) return;
     this.mecha.damage(amount);
     this.damageTaken += amount;
     this.audio.hit();
     this.battleUI.damage(amount, 'Hull Damage');
+  }
+
+  handleTelegraphTrigger(telegraph) {
+    if (telegraph.status === 'slow') {
+      this.mecha.applySlow(1.8, 0.48);
+      this.battleUI.damage(0, 'Root Snare');
+    }
+    if (telegraph.status === 'silence') {
+      this.weapons.applySilence(2.1);
+      this.battleUI.damage(0, 'Rifle Silenced');
+    }
+    this.damagePlayer(telegraph.damage);
+  }
+
+  handleBossEffect(effect) {
+    if (effect === 'glitch') {
+      this.glitchTimer = Math.max(this.glitchTimer, 2.2);
+    }
   }
 
   finishVictory() {
@@ -470,9 +566,19 @@ export class BattleScene {
       shardsDefeated: this.shardsDefeated,
       enemiesDefeated: Math.max(this.shardsDefeated, this.boss.addsSpawned || 0),
       bossDefeated: this.mission.enemy,
+      resultText: this.mission.resultText,
       salvage: this.mission.reward.salvage,
       sync: this.mission.reward.sync
     });
+  }
+
+  queueEventCallout(event, force = false) {
+    const callout = this.mission.calloutEvents?.[event];
+    if (!callout) return;
+    if (!force && this.elapsed < (this.nextEventCalloutAt || 0)) return;
+    this.nextEventCalloutAt = this.elapsed + 3;
+    this.nextCalloutAt = this.elapsed + 4.5;
+    this.battleUI.callout(callout);
   }
 
   queueCallout() {

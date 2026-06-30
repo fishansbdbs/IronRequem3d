@@ -454,6 +454,7 @@ export class Game {
       missionId: mission.id,
       missionName: mission.name,
       bossDefeated: mission.enemy,
+      resultText: mission.resultText,
       salvage: reward.salvage,
       sync: reward.sync,
       chapterUnlocked: unlockLabels[mission.id]
@@ -486,15 +487,15 @@ export class Game {
   showEndingSelection() {
     const endingCopy = {
       'hold-arc12': {
-        label: 'Hold Arc-12',
+        label: 'Save Arc-12',
         text: 'Kaito and the crew keep Arc-12 in the fight, turning the station into a shield instead of a tomb.'
       },
       'sever-the-choir': {
-        label: 'Sever the Choir',
+        label: 'Sever the Signal',
         text: 'Vael cuts the Requiem signal from the Veilborn network, leaving the sky quiet and dangerous in a human way.'
       },
       'vael-open-door': {
-        label: "Vael's Open Door",
+        label: 'Merge with Vael',
         text: 'Kaito trusts Vael to open a controlled aperture, proving the AI is more than a weapon system.'
       },
       'evacuate-and-return': {
@@ -683,6 +684,14 @@ export class Game {
           this.currentScene.finishVictory();
         }
       },
+      forceAttack: () => {
+        if (this.currentScene instanceof BattleScene) {
+          this.currentScene.boss.performAttack();
+          this.updateSmokeDebug();
+          return smoke.battleDebug();
+        }
+        return null;
+      },
       reset: () => this.resetSave()
     };
     window.__IRON_REQUIEM_SMOKE__ = smoke;
@@ -704,6 +713,7 @@ export class Game {
       ['Hangar', smoke.hangar],
       ['Launch', smoke.launch],
       ...Object.keys(chapterIds).map((key) => [`${key.toUpperCase()} Battle`, smoke[`battleChapter${key.replace('ch', '')}`]]),
+      ['Force Attack', smoke.forceAttack],
       ['Defeat Boss', smoke.defeatBoss]
     ];
 

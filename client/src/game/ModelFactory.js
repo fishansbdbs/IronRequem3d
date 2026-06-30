@@ -211,6 +211,9 @@ export class ModelFactory {
       const fin = box(`glass-fin-${i}`, new THREE.Vector3(0.15, 1.4, 0.7), new THREE.Vector3(1 + i * 1.1, 2.0, 0), mats.blue);
       fin.rotation.z = 0.6 - i * 0.18;
       group.add(fin);
+      const sideFin = box(`transparent-side-fin-${i}`, new THREE.Vector3(0.1, 0.75, 1.2), new THREE.Vector3(0.7 + i * 1.05, 1.1, i % 2 ? 0.82 : -0.82), mats.glass);
+      sideFin.rotation.y = i % 2 ? 0.45 : -0.45;
+      group.add(sideFin);
     }
     const halo = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.035, 8, 72), mats.glass);
     halo.rotation.x = Math.PI / 2;
@@ -232,6 +235,11 @@ export class ModelFactory {
       antler.rotation.z = side * 0.46;
       antler.rotation.x = side * 0.3;
       group.add(antler);
+      const branch = cylinder(`branch-antler-${i}`, 0.03, 0.06, 0.8, mats.amber, 7);
+      branch.position.copy(antler.position).add(new THREE.Vector3(0.05, 0.35, side * 0.25));
+      branch.rotation.z = side * 0.92;
+      branch.rotation.x = side * 0.2;
+      group.add(branch);
     }
     for (let i = 0; i < 4; i += 1) {
       const side = i < 2 ? -1 : 1;
@@ -264,6 +272,13 @@ export class ModelFactory {
       shard.position.set(Math.cos(i) * 1.8, 2.4 + Math.sin(i * 1.7) * 0.5, Math.sin(i) * 1.8);
       group.add(shard);
     }
+    [-1, 1].forEach((side) => {
+      const arm = new THREE.Mesh(new THREE.TorusGeometry(1.05, 0.045, 8, 48), mats.violet);
+      arm.name = `soundwave-arm-${side}`;
+      arm.position.set(side * 1.15, 2.25, 0);
+      arm.rotation.y = side * 0.7;
+      group.add(arm);
+    });
     return group;
   }
 
@@ -277,6 +292,12 @@ export class ModelFactory {
       const plate = box(`arc9-plate-${i}`, new THREE.Vector3(0.75, 0.22, 0.9), new THREE.Vector3(-1.1 + i * 0.45, 2.55 + (i % 2) * 0.2, -0.88), mats.armor);
       plate.rotation.z = -0.4 + i * 0.12;
       group.add(plate);
+    }
+    for (let i = 0; i < 3; i += 1) {
+      const vent = cylinder(`ash-vent-${i}`, 0.08, 0.18, 0.9, mats.red, 8);
+      vent.position.set(-0.4 + i * 0.55, 2.55, 0.9);
+      vent.rotation.x = 0.45;
+      group.add(vent);
     }
     ['left', 'right'].forEach((sideName, index) => {
       const side = index ? 1 : -1;
@@ -301,6 +322,15 @@ export class ModelFactory {
     });
     group.add(box('prototype-back-spine', new THREE.Vector3(0.35, 2.4, 0.35), new THREE.Vector3(0, 3.45, 0.85), mats.red));
     group.add(box('prototype-rifle-wing', new THREE.Vector3(2.5, 0.18, 0.28), new THREE.Vector3(1.15, 3.9, 0.82), mats.rail));
+    group.add(box('prototype-blue-core-fracture', new THREE.Vector3(0.24, 0.68, 0.96), new THREE.Vector3(0.28, 3.62, -0.04), mats.blue));
+    group.add(box('damaged-blade-splinter', new THREE.Vector3(0.12, 1.25, 0.1), new THREE.Vector3(-1.76, 2.25, -0.25), mats.red));
+    for (let i = 0; i < 3; i += 1) {
+      const cable = new THREE.Mesh(new THREE.TorusGeometry(0.62 + i * 0.08, 0.025, 8, 32), mats.black);
+      cable.name = `loose-cable-${i}`;
+      cable.position.set(-0.55 + i * 0.42, 3.15, 0.85);
+      cable.rotation.x = 0.8;
+      group.add(cable);
+    }
     return group;
   }
 
@@ -321,6 +351,12 @@ export class ModelFactory {
     gravityRing.rotation.x = Math.PI / 2;
     gravityRing.position.y = 2.05;
     group.add(gravityRing);
+    for (let i = 0; i < 2; i += 1) {
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(1.25 + i * 0.45, 0.035, 8, 72), i ? mats.blue : mats.glass);
+      halo.position.y = 3.75 + i * 0.18;
+      halo.rotation.x = Math.PI / 2;
+      group.add(halo);
+    }
     return group;
   }
 
@@ -332,6 +368,10 @@ export class ModelFactory {
     heart.position.set(0, 2.35, 0);
     heart.castShadow = true;
     group.add(heart);
+    const blueRift = new THREE.Mesh(new THREE.IcosahedronGeometry(0.82, 1), mats.blue);
+    blueRift.name = 'dimensional-blue-core';
+    blueRift.position.set(0.28, 2.45, -0.12);
+    group.add(blueRift);
     for (let i = 0; i < 6; i += 1) {
       const rib = cylinder(`heart-rib-${i}`, 0.05, 0.12, 3.2, i % 2 ? mats.violet : mats.blue, 8);
       rib.position.set(Math.cos((i / 6) * Math.PI * 2) * 1.75, 2.3, Math.sin((i / 6) * Math.PI * 2) * 1.75);

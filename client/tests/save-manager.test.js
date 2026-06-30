@@ -20,7 +20,7 @@ test('corrupted saves fall back to a fresh state instead of throwing', () => {
   assert.equal(loadGame(storage).objective, 'Talk to Commander Nira.');
 });
 
-test('v0.1.0 saves migrate to v0.3.0 without losing chapter one progress', () => {
+test('v0.1.0 saves migrate to v0.3.1 without losing chapter one progress', () => {
   const legacy = {
     schemaVersion: 1,
     version: '0.1.0',
@@ -39,7 +39,7 @@ test('v0.1.0 saves migrate to v0.3.0 without losing chapter one progress', () =>
   const storage = createMemoryStorage({ ironRequiemSave: JSON.stringify(legacy) });
   const migrated = loadGame(storage);
 
-  assert.equal(migrated.version, '0.3.0');
+  assert.equal(migrated.version, '0.3.1');
   assert.equal(migrated.schemaVersion, 3);
   assert.equal(migrated.salvage, 100);
   assert.equal(migrated.upgrades['hull-plating'].level, 1);
@@ -79,7 +79,7 @@ test('v0.2.0 saves migrate to chapter four with facility and ending fields', () 
   const storage = createMemoryStorage({ ironRequiemSave: JSON.stringify(legacy) });
   const migrated = loadGame(storage);
 
-  assert.equal(migrated.version, '0.3.0');
+  assert.equal(migrated.version, '0.3.1');
   assert.equal(migrated.schemaVersion, 3);
   assert.equal(migrated.currentChapter, 'chapter-4-glass-horizon');
   assert.equal(migrated.activeMissionId, 'operation-glass-horizon');

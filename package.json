@@ -1,8 +1,8 @@
 {
   "name": "iron-requiem-3d-remaster",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
-  "description": "IRON REQUIEM 3D REMASTER - Arc-12 Campaign Expansion",
+  "description": "IRON REQUIEM 3D REMASTER - Boss Identity & Campaign Polish",
   "type": "module",
   "scripts": {
     "install:all": "node scripts/install-all.js",
